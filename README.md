@@ -5,13 +5,17 @@
 
 > **English** · [Português](pt-br/README.md)
 
-How to build, on your own Mac, a local AI stack with secure remote access: **Open WebUI**, a
-**locally served model**, **Cloudflare Tunnel** for phone access, and a **browser broker with human
-takeover** for automating sites that require a login.
+**The objective: install, configure and use a local model with Open WebUI on your own Mac.** Nothing
+beyond that — no success criterion, no target architecture to reach. The documents cover the whole
+path, from the first dependency to daily use.
 
-**This repository is a guide, not a project you clone and run.** You read it, execute on your
-machine, and adapt. The code under `examples/` is the reference implementation of what the
-documents describe — it is there to consult, not to `git clone && docker compose up`.
+The rest of the stack is optional: **Cloudflare Tunnel** for phone access and a **browser broker
+with human takeover** for automating sites that require a login. Nothing on the main path needs a
+VPS — everything runs on one machine.
+
+**This repository is a guide first.** Cloning it is fine, but read it: you execute on your machine
+and adapt. The code under `examples/` is the reference implementation of what the documents
+describe, not a `docker compose up` turnkey stack.
 
 The model is **not** the point: the guide uses **Qwen3.8-27B** as the worked example, but the stack
 is model-agnostic. Swap in whatever you want to test.
@@ -20,8 +24,8 @@ is model-agnostic. Swap in whatever you want to test.
 
 ## Who this is for
 
-**Yes, if you:** already use AI, have a Mac, are comfortable in a terminal, and want to run models
-locally with phone access without opening your machine to the internet.
+**Yes, if you:** have a Mac, are comfortable in a terminal, and want to run models locally and use
+them through Open WebUI. Phone access is a bonus, not a requirement.
 
 **No, if you:** want a one-command packaged solution · lack the memory (the measured case uses
 **M3 Max, 40 GPU cores, 128 GB**) · would rather use a cloud API.
@@ -47,18 +51,18 @@ own accounts.
 
 ## The documents
 
-Read in order. The first two are decision and context; the third is the main path.
+Read in order. 00 and 02 are the path; everything else is context or optional.
 
 | # | Document | What it settles |
 |---|---|---|
-| 00 | [Architecture choice](docs/00-architecture-choice.md) | Index. With or without a VPS — decide here |
+| 00 | [Architecture and options](docs/00-architecture-and-options.md) | Index. Local-first — the VPS branch is optional |
 | 01 | [Case study: local model on M3 Max](docs/01-case-study-qwen38-m3-max.md) | What was measured, with numbers. **Historical record** of one checkpoint |
 | 02 | [Deploy on macOS with Cloudflare Tunnel](docs/02-deploy-macos-cloudflare-tunnel.md) | **The main path.** Mac + Tunnel + phone access |
-| 03 | [Deploy with a VPS](docs/03-deploy-with-vps.md) | Variant for when the Mac is off. Not yet executed |
+| 03 | [Deploy with a VPS](docs/03-deploy-with-vps.md) | **Optional.** Only if the WebUI must stay up while the Mac is off. Not yet executed |
 | 04 | [Browser HITL, multi-user](docs/04-browser-hitl-multi-user-poc.md) | Automating sites with human login and isolated profiles |
 | 05 | [Clean-room model install](docs/05-cleanroom-install.md) | Reproducible install, no local re-quantisation |
 
-**Start with 00.** It decides between 02 and 03 and explains the trade-off.
+**Start with 00.** It sets the local architecture and marks the VPS branch as optional.
 
 ### What is validated, and what is not
 

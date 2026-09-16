@@ -1,6 +1,6 @@
-# Open WebUI: escolha entre instalação com VPS e sem VPS
+# Instalação local-first: arquitetura e opções
 
-> [English](../../docs/00-architecture-choice.md) · **Português**
+> [English](../../docs/00-architecture-and-options.md) · **Português**
 
 > Para o navegador universal multiusuário com login humano, consulte [`04-browser-hitl-multi-user-poc.md`](04-browser-hitl-multi-user-poc.md). O POC publicado é uma camada separada e não altera a escolha de hospedagem descrita abaixo.
 
@@ -8,7 +8,12 @@
 **Domínio:** `seudominio.com`  
 **Status:** índice arquitetural; o cenário sem VPS registra a implantação atual, enquanto o cenário com VPS permanece um runbook não executado
 
-Este arquivo ajuda a escolher hospedagem e modelo. Os procedimentos completos permanecem separados.
+O objetivo deste guia é **instalar, configurar e usar um modelo local com o Open WebUI**, tudo em um
+único Mac. Este arquivo é o índice: fixa a arquitetura local e a escolha do modelo, e marca o ramo
+com VPS como opcional. Os procedimentos completos permanecem separados.
+
+Nada aqui exige VPS. O único requisito que a justificaria é manter o WebUI no ar com o Mac desligado
+— se isso não importa para você, leia [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md) e pule [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
 
 ---
 
@@ -25,7 +30,7 @@ O arquivo [`01-case-study-qwen38-m3-max.md`](01-case-study-qwen38-m3-max.md) con
 
 ---
 
-## Opção 1 — sem VPS
+## Opção 1 — sem VPS (padrão)
 
 Use:
 
@@ -55,7 +60,7 @@ Escolha esta opção se simplicidade e armazenamento local forem mais importante
 
 ---
 
-## Opção 2 — com VPS
+## Opção 2 — com VPS (opcional)
 
 Use:
 
@@ -81,6 +86,9 @@ Características:
 - prompts passam pela VPS/Cloudflare e o histórico fica armazenado na VPS.
 
 Escolha esta opção se o requisito principal for usar o WebUI e OpenRouter mesmo sem o Mac.
+
+Lembre que este ramo ainda não foi executado: o runbook está completo, mas não verificado contra uma
+VPS real. Se você começa hoje, o caminho local é o que tem evidência por trás.
 
 ---
 
@@ -114,10 +122,12 @@ Não implante os dois runbooks simultaneamente usando o mesmo `chat.seudominio.c
 
 ---
 
-## Recomendação para o requisito já descrito
+## Recomendação
 
-Se você quer que o Open WebUI continue disponível com OpenRouter quando o Mac estiver desligado, escolha **com VPS**.
+**Padrão: sem VPS.** Ele cumpre o objetivo — instalar, configurar e usar um modelo local com o Open
+WebUI — com menos peças móveis, sem custo de cloud e com os dados sem sair do Mac.
 
-Se aceita que tudo fique offline ao desligar o Mac e prefere menos custo/complexidade, escolha **sem VPS**.
+Escolha **com VPS** só se um requisito específico se aplicar: o WebUI e o OpenRouter precisarem
+continuar acessíveis com o Mac desligado. Todo o resto da instalação local permanece igual.
 
 **Cloudflare Tunnel não hospeda o Open WebUI.** Ele transporta tráfego até uma origem ativa e, portanto, não muda essa distinção.

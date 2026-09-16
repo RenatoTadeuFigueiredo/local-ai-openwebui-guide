@@ -8,7 +8,7 @@
 **Autenticação escolhida:** `chat.seudominio.com` usa somente login/senha do Open WebUI, sem Cloudflare Access/OTP; o hostname separado `browser.seudominio.com` usa One-Time PIN exclusivamente para takeover HITL  
 **Não usa:** VPS, Docker para o WebUI, `llm-home.seudominio.com`, Service Token ou exposição remota direta da API do Qwen
 
-> Este é exclusivamente o cenário **sem VPS**. Para manter o WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, use [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
+> Este é exclusivamente o cenário **sem VPS** — o padrão deste guia. Para manter o WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, use o opcional [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
 >
 > **Proveniência do estado implantado:** `qwen38-omlx` neste runbook é o checkpoint uncensored `pyros-vault/...@13ec629…`, preservado como registro operacional. Para outra máquina ou instalação nova, a recomendação é o perfil separado `qwen38-official-omlx`, documentado em [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md). Não troque IDs/caminhos neste documento sem executar e datar uma migração real.
 

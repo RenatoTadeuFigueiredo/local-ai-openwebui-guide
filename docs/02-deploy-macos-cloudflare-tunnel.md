@@ -8,7 +8,7 @@
 **Chosen authentication:** `chat.seudominio.com` uses only the Open WebUI login/password, with no Cloudflare Access/OTP; the separate hostname `browser.seudominio.com` uses One-Time PIN exclusively for HITL takeover  
 **Does not use:** VPS, Docker for the WebUI, `llm-home.seudominio.com`, Service Token or direct remote exposure of the Qwen API
 
-> This is exclusively the **without VPS** scenario. To keep the WebUI and OpenRouter available when the Mac is off, use [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
+> This is exclusively the **without VPS** scenario — the default for this guide. To keep the WebUI and OpenRouter available when the Mac is off, see the optional [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
 >
 > **Provenance of the deployed state:** `qwen38-omlx` in this runbook is the uncensored checkpoint `pyros-vault/...@13ec629…`, preserved as an operational record. For another machine or a fresh install, the recommendation is the separate profile `qwen38-official-omlx`, documented in [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Do not swap IDs/paths in this document without running and dating a real migration.
 

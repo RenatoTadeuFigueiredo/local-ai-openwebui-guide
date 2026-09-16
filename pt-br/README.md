@@ -5,13 +5,17 @@
 
 > [English](../README.md) · **Português**
 
-Como montar, no seu próprio Mac, uma stack de IA local com acesso remoto seguro: **Open WebUI**,
-**modelo local** via oMLX com MTP, **Cloudflare Tunnel** para acesso pelo celular, e um **broker de
-navegador com takeover humano** para automação de sites que exigem login.
+**O objetivo: instalar, configurar e usar um modelo local com o Open WebUI no seu próprio Mac.**
+Nada além disso — sem critério de sucesso, sem arquitetura-alvo a atingir. Os documentos cobrem o
+caminho inteiro, da primeira dependência ao uso diário.
 
-**Este repositório é um guia, não um projeto para clonar e rodar.** Você lê, executa na sua
-máquina, e adapta. O código em `examples/` é a implementação de referência do que os documentos
-descrevem — está lá para consulta, não para `git clone && docker compose up` direto.
+O resto da stack é opcional: **Cloudflare Tunnel** para acesso pelo celular e um **broker de
+navegador com takeover humano** para automação de sites que exigem login. Nada no caminho principal
+precisa de VPS — tudo roda em uma máquina.
+
+**Este repositório é um guia em primeiro lugar.** Clonar é permitido, mas leia: você executa na sua
+máquina e adapta. O código em `examples/` é a implementação de referência do que os documentos
+descrevem, não uma stack pronta de `docker compose up`.
 
 Os documentos estão em **português**. O código e os comentários, em inglês.
 
@@ -19,8 +23,8 @@ Os documentos estão em **português**. O código e os comentários, em inglês.
 
 ## Para quem é
 
-**Sim, se você:** já usa IA, tem um Mac, sabe abrir o terminal e quer rodar modelos localmente com
-acesso pelo celular sem abrir a máquina para a internet.
+**Sim, se você:** tem um Mac, sabe abrir o terminal e quer rodar modelos localmente e usá-los pelo
+Open WebUI. Acesso pelo celular é um bônus, não um requisito.
 
 **Não, se você:** quer uma solução empacotada de um comando só · não tem hardware com memória
 suficiente (o caso medido usa **M3 Max, 40 núcleos de GPU, 128 GB**) · prefere uma API na nuvem.
@@ -45,18 +49,18 @@ Nada é copiável literalmente: gere os seus segredos, escolha o seu domínio, c
 
 ## Os documentos
 
-Leia na ordem. Os dois primeiros são decisão e contexto; o terceiro é o caminho principal.
+Leia na ordem. 00 e 02 são o caminho; o resto é contexto ou opcional.
 
 | # | Documento | O que resolve |
 |---|---|---|
-| 00 | [Escolha de arquitetura](docs/00-architecture-choice.md) | Índice. Com VPS ou sem VPS — decida aqui |
+| 00 | [Arquitetura e opções](docs/00-architecture-and-options.md) | Índice. Local-first — o ramo com VPS é opcional |
 | 01 | [Estudo de caso: Qwen3.8-27B no M3 Max](docs/01-case-study-qwen38-m3-max.md) | O que foi medido, com números. **Registro histórico** de um checkpoint específico |
 | 02 | [Open WebUI sem VPS](docs/02-deploy-macos-cloudflare-tunnel.md) | **O caminho principal.** Mac + Tunnel + acesso pelo celular |
-| 03 | [Open WebUI com VPS](docs/03-deploy-with-vps.md) | Variante para quando o Mac está desligado. Ainda não executado |
+| 03 | [Open WebUI com VPS](docs/03-deploy-with-vps.md) | **Opcional.** Só se o WebUI precisar ficar no ar com o Mac desligado. Ainda não executado |
 | 04 | [Browser HITL multiusuário](docs/04-browser-hitl-multi-user-poc.md) | Automação de sites com login humano e perfis isolados |
 | 05 | [Qwen3.8 derivado do oficial — clean-room](docs/05-cleanroom-install.md) | Instalação reproduzível, sem requantizar |
 
-**Comece pelo 00.** Ele decide entre 02 e 03 e explica o tradeoff.
+**Comece pelo 00.** Ele fixa a arquitetura local e marca o ramo com VPS como opcional.
 
 ### O que está validado e o que não está
 

@@ -10,6 +10,8 @@
 
 > This is exclusively the **with VPS** scenario. To run everything on the Mac, without a VPS, use [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md).
 >
+> **Optional.** Skip this document unless you need the WebUI reachable while the Mac is powered off. The local path is the default and covers the guide's objective on its own.
+>
 > Because this scenario has not been executed yet, for new installs it adopts the clean-room profile [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md): community checkpoint `fcmeyer/...@0299356…`, declared as derived from `Qwen/Qwen3.8-27B`. Install, verify and run the model's 40K canary on the Mac before publishing the API through the Tunnel.
 
 ---
