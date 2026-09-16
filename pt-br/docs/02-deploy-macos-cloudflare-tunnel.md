@@ -1,14 +1,16 @@
 # Open WebUI sem VPS: macOS, Qwen local e Cloudflare Tunnel
 
+> [English](../../docs/02-deploy-macos-cloudflare-tunnel.md) · **Português**
+
 **Status:** fluxo principal implantado e aprovado em 25 de agosto de 2026; perfil Qwen de 256K promovido e validado após o restart final em 27 de agosto de 2026; ainda pendem reboot físico/pós-login, cópia de desastre externa, confirmação do roteador e alertas operacionais  
 **Versões instaladas:** Open WebUI `v0.11.0`; Python `3.12.14`; `cloudflared` `2026.8.2`  
 **Objetivo:** executar o Open WebUI diretamente no Mac, acessar pelo celular em `https://chat.seudominio.com` sem VPN e usar `qwen38-omlx` por loopback  
 **Autenticação escolhida:** `chat.seudominio.com` usa somente login/senha do Open WebUI, sem Cloudflare Access/OTP; o hostname separado `browser.seudominio.com` usa One-Time PIN exclusivamente para takeover HITL  
 **Não usa:** VPS, Docker para o WebUI, `llm-home.seudominio.com`, Service Token ou exposição remota direta da API do Qwen
 
-> Este é exclusivamente o cenário **sem VPS**. Para manter o WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, use [`03-open-webui-com-vps-cloudflare.md`](03-open-webui-com-vps-cloudflare.md).
+> Este é exclusivamente o cenário **sem VPS**. Para manter o WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, use [`03-deploy-with-vps.md`](03-deploy-with-vps.md).
 >
-> **Proveniência do estado implantado:** `qwen38-omlx` neste runbook é o checkpoint uncensored `pyros-vault/...@13ec629…`, preservado como registro operacional. Para outra máquina ou instalação nova, a recomendação é o perfil separado `qwen38-official-omlx`, documentado em [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Não troque IDs/caminhos neste documento sem executar e datar uma migração real.
+> **Proveniência do estado implantado:** `qwen38-omlx` neste runbook é o checkpoint uncensored `pyros-vault/...@13ec629…`, preservado como registro operacional. Para outra máquina ou instalação nova, a recomendação é o perfil separado `qwen38-official-omlx`, documentado em [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md). Não troque IDs/caminhos neste documento sem executar e datar uma migração real.
 
 ## Convenções: substitua pelos seus valores
 
@@ -526,7 +528,7 @@ Usuários comuns veem somente o terminal concedido ao próprio UUID. Um usuário
 
 Open Terminal fornece shell, arquivos, Git e tools. Para Chromium visual, login manual, MFA ou CAPTCHA, não compartilhe perfis autenticados nem monte o perfil Chrome do macOS.
 
-Depois da implantação inicial do Computer, foi adicionado um **POC universal HITL multiusuário** separado, documentado em [`04-browser-hitl-multiusuario-poc.md`](04-browser-hitl-multiusuario-poc.md). Ele mantém perfis persistentes isolados para admin e user-a, vincula ownership ao UUID do Open WebUI e impõe lock server-side entre agente e humano. O broker já está publicado em `browser.seudominio.com` atrás de Cloudflare Access com One-Time PIN exclusivamente nesse hostname; o E2E móvel de baixo risco ainda está pendente, e contas de alto valor continuam fora do escopo aprovado. `chat.seudominio.com` permanece sem Access/OTP, protegido apenas pelo login do Open WebUI.
+Depois da implantação inicial do Computer, foi adicionado um **POC universal HITL multiusuário** separado, documentado em [`04-browser-hitl-multi-user-poc.md`](04-browser-hitl-multi-user-poc.md). Ele mantém perfis persistentes isolados para admin e user-a, vincula ownership ao UUID do Open WebUI e impõe lock server-side entre agente e humano. O broker já está publicado em `browser.seudominio.com` atrás de Cloudflare Access com One-Time PIN exclusivamente nesse hostname; o E2E móvel de baixo risco ainda está pendente, e contas de alto valor continuam fora do escopo aprovado. `chat.seudominio.com` permanece sem Access/OTP, protegido apenas pelo login do Open WebUI.
 
 O Computer não é necessário para quem usa apenas chat e terminal.
 

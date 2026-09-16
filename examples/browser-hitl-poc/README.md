@@ -1,41 +1,43 @@
-# browser-hitl-poc — implementação de referência
+# browser-hitl-poc — reference implementation
 
-Broker multiusuário de navegador com perfis Chromium persistentes, isolamento por usuário e
-**takeover humano fenced**: o agente e a pessoa compartilham a mesma sessão/aba, e o broker impede
-controle ou observação concorrente durante o login humano.
+> **English** · [Português](../../pt-br/examples/browser-hitl-poc/README.md)
 
-Este diretório é a **implementação de referência** do que o documento
-[`../../docs/04-browser-hitl-multiusuario-poc.md`](../../docs/04-browser-hitl-multiusuario-poc.md)
-descreve. Leia o documento primeiro; o código aqui existe para quem quer ver como o
-comportamento foi construído.
+Multi-user browser broker with persistent Chromium profiles, per-user isolation and
+**fenced human takeover**: the agent and the person share the same session/tab, and the broker blocks
+concurrent control or observation during the human login.
 
-> **Não é um projeto para clonar e sair rodando.** Ele reflete uma implantação concreta. Para
-> reproduzir, gere os seus próprios segredos, escolha o seu domínio e ajuste a configuração.
+This directory is the **reference implementation** of what the document
+[`../../docs/04-browser-hitl-multi-user-poc.md`](../../docs/04-browser-hitl-multi-user-poc.md)
+describes. Read the document first; the code here exists for those who want to see how the
+behaviour was built.
+
+> **It is not a project to clone and run straight away.** It reflects a concrete deployment. To
+> reproduce it, generate your own secrets, choose your own domain and adjust the configuration.
 
 ---
 
-## O que tem aqui
+## What is here
 
-| Arquivo | Papel |
+| File | Role |
 |---|---|
-| `browser_hitl/runtime.py` | Ciclo de vida do Chromium, perfis persistentes, flags e política |
-| `browser_hitl/api.py` | Endpoints HTTP, handshake de takeover, lock server-side |
-| `browser_hitl/security.py` | Validação de identidade Cloudflare Access, TTL e epoch |
-| `browser_hitl/store.py` | Estado, ownership por UUID e auditoria |
-| `browser_hitl/egress_proxy.py` | Proxy de saída com allowlist |
-| `browser_hitl/settings.py` | Configuração por variáveis de ambiente |
-| `openwebui/browser_hitl_tool.py` | Tool nativa do Open WebUI |
-| `tests/` | 8 arquivos, 789 linhas, cobrindo lock, isolamento, hardening e takeover |
-| `chromium-seccomp.json` | Perfil seccomp (`defaultAction: SCMP_ACT_ERRNO`) |
-| `chromium-policy.json` | Política de navegador |
-| `compose.yaml` | Execução em container, com `cap_drop: ALL` e `no-new-privileges` |
+| `browser_hitl/runtime.py` | Chromium lifecycle, persistent profiles, flags and policy |
+| `browser_hitl/api.py` | HTTP endpoints, takeover handshake, server-side lock |
+| `browser_hitl/security.py` | Cloudflare Access identity validation, TTL and epoch |
+| `browser_hitl/store.py` | State, ownership by UUID and auditing |
+| `browser_hitl/egress_proxy.py` | Egress proxy with allowlist |
+| `browser_hitl/settings.py` | Configuration from environment variables |
+| `openwebui/browser_hitl_tool.py` | Open WebUI native tool |
+| `tests/` | 8 files, 789 lines, covering lock, isolation, hardening and takeover |
+| `chromium-seccomp.json` | seccomp profile (`defaultAction: SCMP_ACT_ERRNO`) |
+| `chromium-policy.json` | Browser policy |
+| `compose.yaml` | Container execution, with `cap_drop: ALL` and `no-new-privileges` |
 
-## Rodar
+## Run
 
 ```bash
 cd examples/browser-hitl-poc
 
-# 1. configuração — os modelos estão versionados, os reais não
+# 1. configuration — the templates are versioned, the real ones are not
 cp .env.example .env
 for k in tool-api-key admin-api-key portal-signing-key; do
   cp "secrets/$k.example" "secrets/$k"
@@ -43,44 +45,44 @@ for k in tool-api-key admin-api-key portal-signing-key; do
   chmod 600 "secrets/$k"
 done
 
-# 2. testes
+# 2. tests
 python3 -m venv .test-venv
 . .test-venv/bin/activate
 pip install -e '.[test]'
 pytest -q
 
-# 3. subir (Docker)
+# 3. bring it up (Docker)
 docker compose up --build
 ```
 
-O serviço escuta em `127.0.0.1:3210`. O container roda como usuário não-root `cptr`, com
-`HOME=/home/cptr` — é o usuário *dentro do container*, não o seu.
+The service listens on `127.0.0.1:3210`. The container runs as a non-root user `cptr`, with
+`HOME=/home/cptr` — that is the user *inside the container*, not yours.
 
-## Configuração
+## Configuration
 
-Todas as chaves vêm de variáveis de ambiente, com prefixo `BROWSER_HITL_`. As que importam:
+All keys come from environment variables, with the `BROWSER_HITL_` prefix. The ones that matter:
 
-| Variável | Para que serve |
+| Variable | What it is for |
 |---|---|
-| `BROWSER_HITL_PUBLIC_BASE_URL` | URL pública do portal |
-| `BROWSER_HITL_ACCESS_REQUIRED` | Exige identidade Cloudflare Access |
-| `BROWSER_HITL_ACCESS_TEAM_DOMAIN` | Domínio da equipe Access (`https://<time>.cloudflareaccess.com`) |
-| `BROWSER_HITL_ACCESS_AUDIENCE` | AUD da aplicação Access — **troque pelo seu** |
-| `BROWSER_HITL_HUMAN_CONTROL_TTL_SECONDS` | Prazo absoluto do takeover humano |
-| `BROWSER_HITL_*_SECRET_FILE` | Caminho dos três segredos montados em `/run/secrets/` |
+| `BROWSER_HITL_PUBLIC_BASE_URL` | Public URL of the portal |
+| `BROWSER_HITL_ACCESS_REQUIRED` | Requires Cloudflare Access identity |
+| `BROWSER_HITL_ACCESS_TEAM_DOMAIN` | Access team domain (`https://<team>.cloudflareaccess.com`) |
+| `BROWSER_HITL_ACCESS_AUDIENCE` | AUD of the Access application — **replace it with yours** |
+| `BROWSER_HITL_HUMAN_CONTROL_TTL_SECONDS` | Absolute deadline for the human takeover |
+| `BROWSER_HITL_*_SECRET_FILE` | Path of the three secrets mounted at `/run/secrets/` |
 
-## Segurança
+## Security
 
-O desenho assume que o portal fica **publicado** e trata a identidade como não confiável:
+The design assumes the portal is **published** and treats identity as untrusted:
 
-- segredos em arquivos `0600`, montados `read_only`, nunca em variável de ambiente do host
-- `cap_drop: ALL`, `no-new-privileges`, seccomp com negação por padrão
-- lock server-side (`423`) entre agente e humano, com epoch para retomada
-- validação do JWT do Access antes de qualquer operação privilegiada
+- secrets in `0600` files, mounted `read_only`, never in a host environment variable
+- `cap_drop: ALL`, `no-new-privileges`, seccomp with deny by default
+- server-side lock (`423`) between agent and human, with epoch for resumption
+- validation of the Access JWT before any privileged operation
 
-Os segredos versionados aqui são os **reais da implantação** — publicá-los é intencional, e o
-Access ainda exige One-Time PIN. Se você rodar o seu, gere os seus.
+The secrets versioned here are the **real ones of the deployment** — publishing them is intentional, and
+Access still requires a One-Time PIN. If you run your own, generate your own.
 
 ---
 
-Documento que descreve este POC: [`../../docs/04-browser-hitl-multiusuario-poc.md`](../../docs/04-browser-hitl-multiusuario-poc.md)
+Document describing this POC: [`../../docs/04-browser-hitl-multi-user-poc.md`](../../docs/04-browser-hitl-multi-user-poc.md)

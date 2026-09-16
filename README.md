@@ -1,120 +1,131 @@
 <img src="assets/banner.svg" width="100%"
-     alt="IA local no Mac — guia de implantação: stack de IA local com Open WebUI, modelo local por oMLX e acesso remoto seguro">
+     alt="Local AI on macOS — deployment guide: a local AI stack with Open WebUI, a locally served model, and secure remote access">
 
-# IA local no Mac — guia de implantação
+# Local AI on macOS — deployment guide
 
-Como montar, no seu próprio Mac, uma stack de IA local com acesso remoto seguro: **Open WebUI**,
-**modelo local** via oMLX com MTP, **Cloudflare Tunnel** para acesso pelo celular, e um **broker de
-navegador com takeover humano** para automação de sites que exigem login.
+> **English** · [Português](pt-br/README.md)
 
-**Este repositório é um guia, não um projeto para clonar e rodar.** Você lê, executa na sua
-máquina, e adapta. O código em `examples/` é a implementação de referência do que os documentos
-descrevem — está lá para consulta, não para `git clone && docker compose up` direto.
+How to build, on your own Mac, a local AI stack with secure remote access: **Open WebUI**, a
+**locally served model**, **Cloudflare Tunnel** for phone access, and a **browser broker with human
+takeover** for automating sites that require a login.
 
-Os documentos estão em **português**. O código e os comentários, em inglês.
+**This repository is a guide, not a project you clone and run.** You read it, execute on your
+machine, and adapt. The code under `examples/` is the reference implementation of what the
+documents describe — it is there to consult, not to `git clone && docker compose up`.
 
----
-
-## Para quem é
-
-**Sim, se você:** já usa IA, tem um Mac, sabe abrir o terminal e quer rodar modelos localmente com
-acesso pelo celular sem abrir a máquina para a internet.
-
-**Não, se você:** quer uma solução empacotada de um comando só · não tem hardware com memória
-suficiente (o caso medido usa **M3 Max, 40 núcleos de GPU, 128 GB**) · prefere uma API na nuvem.
+The model is **not** the point: the guide uses **Qwen3.8-27B** as the worked example, but the stack
+is model-agnostic. Swap in whatever you want to test.
 
 ---
 
-## Convenções: substitua pelos seus valores
+## Who this is for
 
-Os documentos descrevem uma implantação concreta. Estes identificadores são **placeholders**:
+**Yes, if you:** already use AI, have a Mac, are comfortable in a terminal, and want to run models
+locally with phone access without opening your machine to the internet.
 
-| Placeholder | O que é |
+**No, if you:** want a one-command packaged solution · lack the memory (the measured case uses
+**M3 Max, 40 GPU cores, 128 GB**) · would rather use a cloud API.
+
+---
+
+## Conventions: substitute your own values
+
+The documents describe one concrete deployment. These identifiers are **placeholders**:
+
+| Placeholder | What it is |
 |---|---|
-| `seudominio.com` | Seu domínio. Os subdomínios derivam dele: `chat.`, `browser.`, `llm-home.` |
-| `admin` | Você — o operador. Instala, tem acesso root-equivalente, enxerga modelos privados |
-| `user-a`, `user-b` | Demais usuários. Login próprio, perfil de navegador isolado, sem privilégio admin |
-| `user-c`, `user-d` | Usuários previstos, ainda sem container opcional |
-| `cptr/admin` | ID de modelo privado, no formato `prefixo/nome` do Open WebUI |
+| `seudominio.com` | Your own domain. Subdomains derive from it: `chat.`, `browser.`, `llm-home.` |
+| `admin` | You — the operator. Installs, has root-equivalent access, sees private models |
+| `user-a`, `user-b` | Other users. Own login, isolated browser profile, no admin privilege |
+| `user-c`, `user-d` | Planned users, no optional container yet |
+| `cptr/admin` | Private model ID, in Open WebUI's `prefix/name` format |
 
-Nada é copiável literalmente: gere os seus segredos, escolha o seu domínio, crie as suas contas.
+Nothing is copy-pasteable literally: generate your own secrets, choose your own domain, create your
+own accounts.
 
 ---
 
-## Os documentos
+## The documents
 
-Leia na ordem. Os dois primeiros são decisão e contexto; o terceiro é o caminho principal.
+Read in order. The first two are decision and context; the third is the main path.
 
-| # | Documento | O que resolve |
+| # | Document | What it settles |
 |---|---|---|
-| 00 | [Escolha de arquitetura](docs/00-open-webui-escolha-de-arquitetura.md) | Índice. Com VPS ou sem VPS — decida aqui |
-| 01 | [Estudo de caso: Qwen3.8-27B no M3 Max](docs/01-estudo-de-caso-qwen38-m3-max.md) | O que foi medido, com números. **Registro histórico** de um checkpoint específico |
-| 02 | [Open WebUI sem VPS](docs/02-open-webui-sem-vps-macos-cloudflare.md) | **O caminho principal.** Mac + Tunnel + acesso pelo celular |
-| 03 | [Open WebUI com VPS](docs/03-open-webui-com-vps-cloudflare.md) | Variante para quando o Mac está desligado. Ainda não executado |
-| 04 | [Browser HITL multiusuário](docs/04-browser-hitl-multiusuario-poc.md) | Automação de sites com login humano e perfis isolados |
-| 05 | [Qwen3.8 derivado do oficial — clean-room](docs/05-qwen38-oficial-omlx-clean-room.md) | Instalação reproduzível, sem requantizar |
+| 00 | [Architecture choice](docs/00-architecture-choice.md) | Index. With or without a VPS — decide here |
+| 01 | [Case study: local model on M3 Max](docs/01-case-study-qwen38-m3-max.md) | What was measured, with numbers. **Historical record** of one checkpoint |
+| 02 | [Deploy on macOS with Cloudflare Tunnel](docs/02-deploy-macos-cloudflare-tunnel.md) | **The main path.** Mac + Tunnel + phone access |
+| 03 | [Deploy with a VPS](docs/03-deploy-with-vps.md) | Variant for when the Mac is off. Not yet executed |
+| 04 | [Browser HITL, multi-user](docs/04-browser-hitl-multi-user-poc.md) | Automating sites with human login and isolated profiles |
+| 05 | [Clean-room model install](docs/05-cleanroom-install.md) | Reproducible install, no local re-quantisation |
 
-**Comece pelo 00.** Ele decide entre 02 e 03 e explica o tradeoff.
+**Start with 00.** It decides between 02 and 03 and explains the trade-off.
 
-### O que está validado e o que não está
+### What is validated, and what is not
 
-Honestidade importa mais que marketing:
-
-| | |
-|---|---|
-| **Executado e validado** | 02 (implantação principal, 256K, guards, backup cifrado), 04 (POC local e publicação com OTP) |
-| **Não executado** | 03 (runbook de VPS) |
-| **Estruturalmente validado, sem medição** | 05 (bundle e verificadores exercitados em perfil sintético; falta a instalação real) |
-| **Pendências conhecidas** | reboot físico pós-login, cópia de disaster recovery externa, confirmação de roteador, alertas operacionais, E2E móvel de baixo risco |
-
-Cada documento traz seu próprio bloco de status. Nenhum deles esconde o que falta.
-
----
-
-## Exemplos
-
-Código de referência do que os documentos descrevem. Não é necessário para seguir o guia.
-
-| Diretório | O que é |
-|---|---|
-| [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Broker multiusuário de navegador: perfis persistentes, lock server-side, takeover fenced. 8 arquivos de teste |
-| [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Bundle de instalação do modelo, com revisão fixada, hashes e verificador |
-
----
-
-## Requisitos
+Honesty over marketing:
 
 | | |
 |---|---|
-| Hardware | Apple Silicon. O caso medido usa M3 Max 40 núcleos / 128 GB |
-| macOS | 13 ou superior |
-| Conta | Cloudflare com um domínio próprio |
-| Conhecimento | Terminal, arquivos de configuração, noções de rede |
+| **Executed and validated** | 02 (main deployment, 256K context, guards, encrypted backup), 04 (local POC and OTP-protected publication) |
+| **Not executed** | 03 (VPS runbook) |
+| **Structurally validated, not measured** | 05 (bundle and verifiers exercised against a synthetic profile; the real install is still pending) |
+| **Known pending items** | post-login physical reboot, external disaster-recovery copy, router confirmation, operational alerts, low-risk mobile E2E |
+
+Every document carries its own status block. None of them hides what is missing.
 
 ---
 
-## O que você vai ter no fim
+## Examples
 
-Um Open WebUI acessível pelo celular em `https://chat.seudominio.com`, servindo um modelo local por
-loopback, com login próprio, compactação de contexto configurada, backup cifrado e autostart —
-e um segundo hostname, `browser.seudominio.com`, protegido por One-Time PIN, para automação de
-navegador com takeover humano.
+Reference code for what the documents describe. Not required in order to follow the guide.
+
+| Directory | What it is |
+|---|---|
+| [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Multi-user browser broker: persistent profiles, server-side lock, fenced takeover. 8 test files |
+| [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Model install bundle with pinned revision, hashes, and a verifier |
 
 ---
 
-## Licença
+## Requirements
 
-- **Documentação** (`docs/`, este README): [CC BY 4.0](LICENSE) — compartilhe e adapte, inclusive
-  comercialmente, com atribuição.
-- **Código** (`examples/`): [MIT](LICENSE-CODE).
+| | |
+|---|---|
+| Hardware | Apple Silicon. The measured case uses M3 Max, 40 GPU cores, 128 GB |
+| macOS | 13 or later |
+| Account | Cloudflare, with a domain you own |
+| Knowledge | Terminal, config files, basic networking |
 
-Não é publicação oficial de nenhum fornecedor. Nomes de produtos pertencem aos seus donos — veja
+---
+
+## What you end up with
+
+An Open WebUI reachable from your phone at `https://chat.seudominio.com`, serving a local model over
+loopback, with its own login, configured context compaction, encrypted backup and autostart — plus a
+second hostname, `browser.seudominio.com`, protected by One-Time PIN, for browser automation with
+human takeover.
+
+---
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). The most valuable contribution is a fix when something
+stops working.
+
+---
+
+## License
+
+- **Documentation** (`docs/`, `pt-br/`, this README): [CC BY 4.0](LICENSE) — share and adapt,
+  including commercially, with attribution.
+- **Code** (`examples/`): [MIT](LICENSE-CODE).
+
+Not an official publication of any vendor. Product names belong to their owners — see
 [`NOTICE.md`](NOTICE.md).
 
 ---
 
-## Status deste repositório
+## Status
 
-Implantação pessoal documentada em **agosto e setembro de 2026**. As versões citadas nos documentos
-são as que foram efetivamente usadas e medidas; elas envelhecem, e cada documento diz o que
-revalidar.
+A personal deployment, documented between **August and September 2026**. The versions quoted in the
+documents are the ones actually used and measured; they age, and each document says what to
+re-validate.

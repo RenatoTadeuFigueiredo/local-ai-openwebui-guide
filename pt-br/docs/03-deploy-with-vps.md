@@ -1,14 +1,16 @@
 # Open WebUI com VPS: cloud contínua, OpenRouter e Qwen no Mac
 
+> [English](../../docs/03-deploy-with-vps.md) · **Português**
+
 **Status:** runbook de implantação; nenhuma instalação foi executada  
 **Data de referência:** 27 de agosto de 2026  
 **Versões de referência verificadas:** Open WebUI `v0.11.0`; `cloudflared` `2026.8.2`  
 **Objetivo:** manter o Open WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, usando `qwen38-official-omlx` remotamente somente quando o Mac estiver online  
 **Domínios:** `chat.seudominio.com` para a interface e `llm-home.seudominio.com` para a API doméstica protegida
 
-> Este é exclusivamente o cenário **com VPS**. Para executar tudo no Mac, sem VPS, use [`02-open-webui-sem-vps-macos-cloudflare.md`](02-open-webui-sem-vps-macos-cloudflare.md).
+> Este é exclusivamente o cenário **com VPS**. Para executar tudo no Mac, sem VPS, use [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md).
 >
-> Como este cenário ainda não foi executado, ele adota para instalações novas o perfil clean-room [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md): checkpoint comunitário `fcmeyer/...@0299356…`, declarado como derivado do `Qwen/Qwen3.8-27B`. Instale, verifique e execute o canário 40K do modelo no Mac antes de publicar a API pelo Tunnel.
+> Como este cenário ainda não foi executado, ele adota para instalações novas o perfil clean-room [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md): checkpoint comunitário `fcmeyer/...@0299356…`, declarado como derivado do `Qwen/Qwen3.8-27B`. Instale, verifique e execute o canário 40K do modelo no Mac antes de publicar a API pelo Tunnel.
 
 ---
 

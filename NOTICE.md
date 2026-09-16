@@ -1,64 +1,68 @@
 # NOTICE
 
-## O que é este repositório
+> **English** · [Português](pt-br/NOTICE.md)
 
-Registro documentado de uma **implantação pessoal** de IA local em um Mac. Não é publicação
-oficial de nenhum fornecedor, e não substitui a documentação de nenhum deles.
+## What this repository is
 
-## Licenças
+A documented **personal deployment** of local AI on a Mac. Not an official publication of any
+vendor, and not a replacement for any vendor's documentation.
 
-| Escopo | Licença |
+## Licenses
+
+| Scope | License |
 |---|---|
-| `docs/` e este README | [CC BY 4.0](LICENSE) |
-| `examples/` (código) | [MIT](LICENSE-CODE) |
+| `docs/`, `pt-br/`, root `README.md` | [CC BY 4.0](LICENSE) |
+| `examples/` (code) | [MIT](LICENSE-CODE) |
 
-A separação é intencional: a documentação é prosa e a licença CC é feita para texto; o código é
-software e a MIT é feita para código.
+The split is deliberate: documentation is prose and the CC license is made for text; code is
+software and MIT is made for code.
 
-## Autoria
+## Authorship
 
-Escrito e executado por Renato Tadeu Figueiredo. Os números, medições e estados relatados vêm da
-máquina do autor, em agosto e setembro de 2026.
+Written and executed by Renato Tadeu Figueiredo. The numbers, measurements and states reported come
+from the author's machine, between August and September 2026.
 
-## Componentes de terceiros
+## Third-party components
 
-Nenhum código de terceiros está vendorizado aqui, mas os documentos descrevem e configuram:
+No third-party code is vendored here, but the documents describe and configure:
 
-| Componente | Origem |
+| Component | Origin |
 |---|---|
 | Open WebUI | <https://github.com/open-webui/open-webui> |
 | oMLX | <https://github.com/jundot/omlx> |
 | MLX / mlx-lm / mlx-vlm | Apple |
 | cloudflared | Cloudflare |
-| Qwen3.8-27B e checkpoint derivado | Alibaba Qwen / `fcmeyer` |
-| Chromium, Playwright, FastAPI, uvicorn, PyJWT | respectivos mantenedores |
+| Qwen3.8-27B and the derived checkpoint | Alibaba Qwen / `fcmeyer` |
+| Chromium, Playwright, FastAPI, uvicorn, PyJWT | respective maintainers |
 | `@piotr-agier/google-drive-mcp` | Piotr Agier |
-| Contêineres e perfis seccomp | projeto Docker / Moby |
+| Container and seccomp profiles | Docker / Moby project |
 
-Versões específicas estão fixadas nos documentos e nos `pyproject.toml` / `requirements-*.txt`.
+Specific versions are pinned in the documents and in the `pyproject.toml` / `requirements-*.txt`
+files.
 
-## Marcas
+## Trademarks
 
-Nomes de produtos citados — **macOS**, **Apple Silicon**, **Cloudflare**, **Docker**,
-**Chromium**, **Qwen** — pertencem aos seus respectivos donos. O uso aqui é descritivo.
+Product names mentioned — **macOS**, **Apple Silicon**, **Cloudflare**, **Docker**, **Chromium**,
+**Qwen** — belong to their respective owners. Their use here is descriptive.
 
-## Medições e projeções
+## Measurements and projections
 
-Os documentos distinguem, quando relevante, o que foi **medido** do que foi **estimado** ou
-**extrapolado**. Um número medido numa máquina não é promessa de desempenho em outra: temperatura,
-estado da máquina, versão de runtime e carga concorrente mudam o resultado.
+The documents distinguish, where relevant, what was **measured** from what was **estimated** or
+**extrapolated**. A number measured on one machine is not a performance promise for another:
+temperature, machine state, runtime version and concurrent load all change the result.
 
-## Sem garantia
+## No warranty
 
-Fornecido como está. Os documentos descrevem comandos que alteram configuração de sistema, instalam
-serviços e publicam hostnames — executá-los é responsabilidade de quem executa.
+Provided as-is. The documents describe commands that change system configuration, install services
+and publish hostnames — running them is the responsibility of whoever runs them.
 
-## Correções
+## Corrections
 
-Se um comando não funciona mais, ou um fornecedor mudou algo, abra uma issue com:
+If a command no longer works, or a vendor changed something, open an issue with:
 
-- o documento e o trecho exato
-- a versão do componente envolvido
-- o que aconteceu em vez do esperado
+- the document and the exact passage
+- the version of the component involved
+- what happened instead of what was expected
 
-Correções são bem-vindas. O valor deste repositório depende de ele permanecer verdadeiro.
+Corrections are welcome. This repository's value depends on it staying true. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md).

@@ -1,5 +1,7 @@
 # Navegador universal HITL multiusuário: arquitetura, POC e publicação restrita
 
+> [English](../../docs/04-browser-hitl-multi-user-poc.md) · **Português**
+
 **Estado em 26/08/2026:** POC local validado para admin e user-a; portal publicado separadamente em `browser.seudominio.com` com Cloudflare Access/OTP; E2E móvel de baixo risco ainda pendente  
 **Open WebUI:** `0.11.0`  
 **Backend do POC:** Python `3.12`, FastAPI, Playwright `1.62.0`, Chromium `151.0.7922.71`, SQLite, Xvfb, x11vnc e noVNC  
@@ -7,7 +9,7 @@
 
 > Este documento descreve um **POC publicado com acesso restrito**, não uma autorização para usar contas de alto valor. O primeiro teste móvel deve usar um site descartável ou serviço de baixo impacto. Google principal, Gmail real, Drive real, bancos, saúde, governo e consoles de produção permanecem fora do escopo inicial.
 >
-> O Model ID `local.qwen38-omlx` citado aqui pertence à implantação uncensored atual descrita em [`02-open-webui-sem-vps-macos-cloudflare.md`](02-open-webui-sem-vps-macos-cloudflare.md). Uma migração para o perfil recomendado `local.qwen38-official-omlx` exige atualizar conexão, ACL, compactação e canários; a configuração abaixo não é evidência independente do checkpoint novo.
+> O Model ID `local.qwen38-omlx` citado aqui pertence à implantação uncensored atual descrita em [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md). Uma migração para o perfil recomendado `local.qwen38-official-omlx` exige atualizar conexão, ACL, compactação e canários; a configuração abaixo não é evidência independente do checkpoint novo.
 
 ---
 

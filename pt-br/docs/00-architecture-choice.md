@@ -1,6 +1,8 @@
 # Open WebUI: escolha entre instalação com VPS e sem VPS
 
-> Para o navegador universal multiusuário com login humano, consulte [`04-browser-hitl-multiusuario-poc.md`](04-browser-hitl-multiusuario-poc.md). O POC publicado é uma camada separada e não altera a escolha de hospedagem descrita abaixo.
+> [English](../../docs/00-architecture-choice.md) · **Português**
+
+> Para o navegador universal multiusuário com login humano, consulte [`04-browser-hitl-multi-user-poc.md`](04-browser-hitl-multi-user-poc.md). O POC publicado é uma camada separada e não altera a escolha de hospedagem descrita abaixo.
 
 **Data de referência:** 27 de agosto de 2026  
 **Domínio:** `seudominio.com`  
@@ -14,12 +16,12 @@ Este arquivo ajuda a escolher hospedagem e modelo. Os procedimentos completos pe
 
 Para uma **nova instalação reproduzível** num M3 Max de 40 núcleos GPU e 128 GB, use:
 
-- [`05-qwen38-oficial-omlx-clean-room.md`](05-qwen38-oficial-omlx-clean-room.md) — visão geral;
-- [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md) — guia executável e bundle.
+- [`05-cleanroom-install.md`](05-cleanroom-install.md) — visão geral;
+- [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md) — guia executável e bundle.
 
 Esse caminho baixa `fcmeyer/Qwen3.8-27B-MLX-oQ4e-mtp@0299356…`, uma quantização comunitária fixada que declara o modelo oficial `Qwen/Qwen3.8-27B` como base. Não há requantização local.
 
-O arquivo [`01-estudo-de-caso-qwen38-m3-max.md`](01-estudo-de-caso-qwen38-m3-max.md) continua sendo o **registro histórico** do checkpoint uncensored `pyros-vault/...`. Seus benchmarks de 46–50 tok/s e canários 256K não devem ser atribuídos ao checkpoint `fcmeyer` sem uma nova medição.
+O arquivo [`01-case-study-qwen38-m3-max.md`](01-case-study-qwen38-m3-max.md) continua sendo o **registro histórico** do checkpoint uncensored `pyros-vault/...`. Seus benchmarks de 46–50 tok/s e canários 256K não devem ser atribuídos ao checkpoint `fcmeyer` sem uma nova medição.
 
 ---
 
@@ -27,7 +29,7 @@ O arquivo [`01-estudo-de-caso-qwen38-m3-max.md`](01-estudo-de-caso-qwen38-m3-max
 
 Use:
 
-- [`02-open-webui-sem-vps-macos-cloudflare.md`](02-open-webui-sem-vps-macos-cloudflare.md)
+- [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md)
 
 Arquitetura:
 
@@ -57,7 +59,7 @@ Escolha esta opção se simplicidade e armazenamento local forem mais importante
 
 Use:
 
-- [`03-open-webui-com-vps-cloudflare.md`](03-open-webui-com-vps-cloudflare.md)
+- [`03-deploy-with-vps.md`](03-deploy-with-vps.md)
 
 Arquitetura:
 

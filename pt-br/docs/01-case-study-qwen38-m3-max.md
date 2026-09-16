@@ -1,12 +1,14 @@
 # Estudo de caso: Qwen3.8-27B local no Apple M3 Max
 
+> [English](../../docs/01-case-study-qwen38-m3-max.md) · **Português**
+
 **Período do benchmark:** 14–20 de agosto de 2026  
 **Atualização operacional de 256K:** 26–27 de agosto de 2026  
 **Hardware:** MacBook Pro 16", Apple M3 Max, GPU de 40 núcleos, 128 GB de memória unificada  
 **Objetivo:** aumentar a geração de aproximadamente 10–15 tokens/s para perto de 50 tokens/s sem trocar por um modelo menor  
 **Resultado:** aproximadamente **46,5 tokens/s de decode** e **39,2 tokens/s end-to-end** com oMLX + Lightning MTP; ganhos balanceados de **2,21×** e **1,97×** sobre o perfil llama.cpp comparado no mesmo protocolo
 
-> **Documento histórico, não guia de instalação.** As medições oMLX deste estudo usam `pyros-vault/Qwen3.8-27B-Uncensored-oQ4e-mtp@13ec629…`. Para uma instalação nova baseada numa quantização fixada do modelo oficial, use [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). O checkpoint `fcmeyer/...@0299356…` é diferente; não herda automaticamente os números de 46–50 tok/s, RSS ou canários 256K registrados aqui.
+> **Documento histórico, não guia de instalação.** As medições oMLX deste estudo usam `pyros-vault/Qwen3.8-27B-Uncensored-oQ4e-mtp@13ec629…`. Para uma instalação nova baseada numa quantização fixada do modelo oficial, use [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md). O checkpoint `fcmeyer/...@0299356…` é diferente; não herda automaticamente os números de 46–50 tok/s, RSS ou canários 256K registrados aqui.
 >
 > Este documento registra medições locais e decisões tomadas. Não é um benchmark universal. Resultados dependem de hardware, estado térmico, contexto, prompt, amostragem, quantização, runtime e versão dos kernels.
 

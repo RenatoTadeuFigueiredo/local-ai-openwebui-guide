@@ -1,16 +1,18 @@
 # Qwen3.8-27B derivado do oficial: caminho clean-room recomendado
 
+> [English](../../docs/05-cleanroom-install.md) · **Português**
+
 **Data de referência:** 27 de agosto de 2026  
 **Hardware-alvo:** Apple M3 Max, GPU de 40 núcleos, 128 GB de memória unificada  
 **Objetivo:** instalar um Qwen3.8-27B local com oMLX, Lightning MTP e contexto nativo de 262144 sem requantização local
 
-> O guia executável completo está em [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Este arquivo é a entrada curta do índice de documentação.
+> O guia executável completo está em [`../examples/qwen38-official-omlx/README.md`](../../examples/qwen38-official-omlx/README.md). Este arquivo é a entrada curta do índice de documentação.
 
 ---
 
 ## Recomendação
 
-Use o bundle [`../examples/qwen38-official-omlx/`](../examples/qwen38-official-omlx/) para baixar e executar:
+Use o bundle [`../examples/qwen38-official-omlx/`](../../examples/qwen38-official-omlx/) para baixar e executar:
 
 ```text
 fcmeyer/Qwen3.8-27B-MLX-oQ4e-mtp
@@ -57,7 +59,7 @@ O procedimento completo, incluindo hardware, disco, verificação, OpenCode, Ope
 
 ## Separação do histórico
 
-[`01-estudo-de-caso-qwen38-m3-max.md`](01-estudo-de-caso-qwen38-m3-max.md) continua documentando o checkpoint diferente:
+[`01-case-study-qwen38-m3-max.md`](01-case-study-qwen38-m3-max.md) continua documentando o checkpoint diferente:
 
 ```text
 pyros-vault/Qwen3.8-27B-Uncensored-oQ4e-mtp
@@ -87,4 +89,4 @@ O novo perfil deve passar seus próprios gates. Metadado de 262144 prova capacid
 | Open WebUI com prefixo `local` | `local.qwen38-official-omlx` |
 | API | `http://127.0.0.1:8084/v1` |
 
-O runbook sem VPS, [`02-open-webui-sem-vps-macos-cloudflare.md`](02-open-webui-sem-vps-macos-cloudflare.md), registra a implantação uncensored existente e não deve ser reescrito como se a migração já tivesse ocorrido. O runbook com VPS, [`03-open-webui-com-vps-cloudflare.md`](03-open-webui-com-vps-cloudflare.md), usa o perfil oficial derivado como padrão para novas implantações.
+O runbook sem VPS, [`02-deploy-macos-cloudflare-tunnel.md`](02-deploy-macos-cloudflare-tunnel.md), registra a implantação uncensored existente e não deve ser reescrito como se a migração já tivesse ocorrido. O runbook com VPS, [`03-deploy-with-vps.md`](03-deploy-with-vps.md), usa o perfil oficial derivado como padrão para novas implantações.
