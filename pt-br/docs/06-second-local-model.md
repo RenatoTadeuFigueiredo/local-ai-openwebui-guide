@@ -72,6 +72,35 @@ launchctl kickstart -k gui/$(id -u)/com.local.openwebui
 Depois confirme que o modelo aparece e responde pela interface — uma conexão que nunca foi exercitada
 de ponta a ponta não é uma conexão que funciona.
 
+### Opcional: ligar no Grok CLI
+
+A mesma facade é um endpoint OpenAI-compatible comum, então a TUI pode usá-la direto. Adicione um
+provider por perfil e uma entrada de modelo apontando para ele, em `~/.grok-prod/config.toml`:
+
+```toml
+[model_providers.local-ornith]
+kind = "openai_compatible"
+display_name = "local oMLX (Ornith 1.5 9B)"
+base_url = "http://127.0.0.1:8086/v1"
+api_key = "<conteudo de state/api-key>"
+api_backend = "chat_completions"
+auth_scheme = "bearer"
+catalog_enabled = false
+
+[model."local/ornith15-omlx"]
+model = "ornith15-omlx"
+model_provider = "local-ornith"
+name = "Ornith 1.5 9B (local)"
+api_key = "<conteudo de state/api-key>"
+max_completion_tokens = 8192     # a facade limita a saída a isso
+context_window = 262144          # nativo, e o que a facade impõe
+supports_tools = true
+stream_tool_calls = true
+```
+
+`catalog_enabled = false` importa: a facade não expõe rotas de gestão de modelos, só inferência, então
+não há nada para descobrir. Os dois perfis usam a mesma forma, com porta e chave próprias.
+
 ### Medido na máquina de referência
 
 | | |
