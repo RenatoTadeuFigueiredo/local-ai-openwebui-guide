@@ -1,3 +1,6 @@
+<img src="assets/banner.svg" width="100%"
+     alt="IA local no Mac — guia de implantação: stack de IA local com Open WebUI, modelo local por oMLX e acesso remoto seguro">
+
 # IA local no Mac — guia de implantação
 
 Como montar, no seu próprio Mac, uma stack de IA local com acesso remoto seguro: **Open WebUI**,

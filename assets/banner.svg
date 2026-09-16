@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340"
+     role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">IA local no Mac — guia de implantação</title>
+  <desc id="descricao">Banner do repositório: guia em português para montar uma stack de IA local num Mac com Apple Silicon, Open WebUI, modelo local por oMLX, Cloudflare Tunnel e broker de navegador com takeover humano.</desc>
+
+  <defs>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A0F1C"/>
+      <stop offset="55%" stop-color="#0D1526"/>
+      <stop offset="100%" stop-color="#111C31"/>
+    </linearGradient>
+
+    <linearGradient id="acento" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+
+    <radialGradient id="brilho" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="borda" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fundo -->
+  <rect width="1200" height="340" rx="18" fill="url(#fundo)"/>
+  <circle cx="120" cy="122" r="150" fill="url(#brilho)"/>
+  <rect x="1" y="1" width="1198" height="338" rx="17" fill="none" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- marca: janela de terminal com prompt -->
+  <g>
+    <rect x="56" y="64" width="112" height="112" rx="26" fill="#0B1424" stroke="url(#borda)" stroke-width="2.5"/>
+    <polyline points="90,104 106,120 90,136" fill="none" stroke="url(#acento)" stroke-width="7"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="114" y="129" width="26" height="7" rx="3.5" fill="#34D399"/>
+  </g>
+
+  <!-- titulo -->
+  <text x="200" y="126" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="54" font-weight="700" fill="#F1F5F9" letter-spacing="-0.5">IA local no Mac</text>
+
+  <text x="202" y="168" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="15" font-weight="500" fill="#7C8CA6" letter-spacing="4.2">GUIA DE IMPLANTAÇÃO · macOS · APPLE SILICON</text>
+
+  <!-- janela de terminal -->
+  <g>
+    <rect x="880" y="56" width="264" height="112" rx="14" fill="#0B1424" stroke="#1E293B" stroke-width="2"/>
+    <circle cx="902" cy="78" r="4" fill="#334155"/>
+    <circle cx="918" cy="78" r="4" fill="#334155"/>
+    <circle cx="934" cy="78" r="4" fill="#334155"/>
+    <line x1="880" y1="94" x2="1144" y2="94" stroke="#1E293B" stroke-width="2"/>
+
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5">
+      <text x="900" y="122" fill="#34D399">$</text>
+      <text x="914" y="122" fill="#94A3B8">qwen38-official start</text>
+      <text x="900" y="146" fill="#34D399">$</text>
+      <text x="914" y="146" fill="#94A3B8">open chat.seudominio.com</text>
+    </g>
+  </g>
+
+  <!-- divisor -->
+  <line x1="56" y1="214" x2="1144" y2="214" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- fatos -->
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="56" y="266" font-size="32" font-weight="700" fill="url(#acento)">262.144</text>
+    <text x="56" y="294" font-size="14" fill="#94A3B8">tokens de contexto nativo,</text>
+    <text x="56" y="314" font-size="14" fill="#94A3B8">com compactação configurada</text>
+
+    <line x1="440" y1="240" x2="440" y2="318" stroke="#1E293B" stroke-width="2"/>
+
+    <text x="480" y="266" font-size="32" font-weight="700" fill="url(#acento)">M3 Max</text>
+    <text x="480" y="294" font-size="14" fill="#94A3B8">40 núcleos de GPU · 128 GB</text>
+    <text x="480" y="314" font-size="14" fill="#94A3B8">de memória unificada</text>
+
+    <line x1="824" y1="240" x2="824" y2="318" stroke="#1E293B" stroke-width="2"/>
+
+    <text x="864" y="266" font-size="32" font-weight="700" fill="url(#acento)">loopback</text>
+    <text x="864" y="294" font-size="14" fill="#94A3B8">a API nunca é exposta</text>
+    <text x="864" y="314" font-size="14" fill="#94A3B8">direto para a internet</text>
+  </g>
+</svg>
