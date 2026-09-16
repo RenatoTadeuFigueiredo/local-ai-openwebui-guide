@@ -39,8 +39,9 @@ You do **not** have to update both — a Portuguese update can follow later.
 - Tables over paragraphs where the content is enumerable.
 - `bash` blocks are typed in a shell. `json` / `yaml` blocks are file contents.
 - Anything skippable goes in a blockquote starting with `**Optional**.`
-- Numbers use `.` as the thousands separator only where the source does — keep it consistent within
-  a document.
+- **Numbers:** English uses `,` for thousands (`262,144`) and `.` for decimals (`46.5`). The
+  Portuguese mirror uses the local convention (`262.144` / `46,5`). Leave IPs (`127.0.0.1`) and
+  version numbers (`0.11.0`) untouched.
 - Keep the status block at the top of each document truthful and current.
 
 ## Language policy

@@ -58,7 +58,7 @@ The sandbox policy is `allow default` + `deny network-outbound`: it blocks egres
 | Executed checkpoint | `fcmeyer/Qwen3.8-27B-MLX-oQ4e-mtp` |
 | Revision | `02993567061709709fd60b38d64819e2b8f647a3` |
 | License declared on the Hub | Apache-2.0 |
-| Indexed payload | `16971681484` bytes, about 15,81 GiB |
+| Indexed payload | `16971681484` bytes, about 15.81 GiB |
 | Shards | 4 safetensors, all with pinned SHA-256 |
 | MTP tensors | 29 |
 | Wheel | `omlx-0.6.3rc1-cp312-cp312-macosx_15_0_universal2.whl` |
@@ -95,8 +95,8 @@ Weights, recurrent state, MTP priming, prefill buffers and other processes come 
 The installer requires **70 GiB free on the target volume** for a fresh install:
 
 - checkpoint + metadata: ~16 GiB;
-- observed venv/runtime: ~1,1 GiB;
-- configured SSD cache: up to `40GB` decimal, ~37,25 GiB;
+- observed venv/runtime: ~1.1 GiB;
+- configured SSD cache: up to `40GB` decimal, ~37.25 GiB;
 - margin for download, logs and operation.
 
 The cache grows on demand. It does not reserve 40 GB of RAM and does not make a 256K prefill instant. Do not include `state/cache/` nor the venv in a normal backup: they are rebuildable. Preserve configuration, owner-only secrets and the pinned identities.

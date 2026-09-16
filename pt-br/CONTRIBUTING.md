@@ -40,8 +40,9 @@ depois.
 - Tabelas em vez de parágrafos quando o conteúdo é enumerável.
 - Blocos `bash` são digitados em um shell. Blocos `json` / `yaml` são conteúdo de arquivo.
 - Qualquer coisa pulável vai em um blockquote começando com `**Optional**.`
-- Números usam `.` como separador de milhar apenas onde a fonte usa — mantenha a consistência
-  dentro de um documento.
+- **Números:** o inglês usa `,` para milhar (`262,144`) e `.` para decimal (`46.5`). O espelho em
+  português mantém a convenção local (`262.144` / `46,5`). IPs (`127.0.0.1`) e versões (`0.11.0`)
+  ficam intactos.
 - Mantenha o bloco de status no topo de cada documento verdadeiro e atualizado.
 
 ## Política de idioma

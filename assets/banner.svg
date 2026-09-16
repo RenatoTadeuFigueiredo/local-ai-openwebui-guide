@@ -67,7 +67,7 @@
 
   <!-- fatos -->
   <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-    <text x="56" y="266" font-size="32" font-weight="700" fill="url(#acento)">262.144</text>
+    <text x="56" y="266" font-size="32" font-weight="700" fill="url(#acento)">262,144</text>
     <text x="56" y="294" font-size="14" fill="#94A3B8">native context tokens,</text>
     <text x="56" y="314" font-size="14" fill="#94A3B8">with compaction configured</text>
 

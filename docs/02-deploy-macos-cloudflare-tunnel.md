@@ -242,8 +242,8 @@ ENABLE_PLUGINS=true
 # required so that server-side Tools/Functions keys do not stay in clear JSON
 ENABLE_VALVE_ENCRYPTION=true
 ENABLE_PIP_INSTALL_FRONTMATTER_REQUIREMENTS=false
-# The checkpoint/oMLX announces 262.144 tokens. The estimated trigger at 245.760
-# provides a nominal margin of 16.384; the facade enforces prompt+output at the real ceiling.
+# The checkpoint/oMLX announces 262,144 tokens. The estimated trigger at 245,760
+# provides a nominal margin of 16,384; the facade enforces prompt+output at the real ceiling.
 ENABLE_CONTEXT_COMPACTION=true
 CONTEXT_COMPACTION_MODEL='local.qwen38-omlx'
 CONTEXT_COMPACTION_TOKEN_THRESHOLD=245760
@@ -434,20 +434,20 @@ The validation of `262144` must separate five gates:
 4. **deep canary:** a prompt close to the operational threshold confirms prefill, memory and streaming without exceeding the total window;
 5. **boundary after promotion:** the four real HTTP modes reach exactly the total `262144` without speculative overshoot, scope leakage or memory abort.
 
-Gate 3 was run after the restart with `40012` prompt tokens, 4 output tokens, streaming, `finish_reason=length` and an identical count between tokenizer and server. The prefill measured `175,83 prompt tok/s` and the TTFT was `227,56 s`; this proves capacity above 32K and also evidences the cost of real context.
+Gate 3 was run after the restart with `40012` prompt tokens, 4 output tokens, streaming, `finish_reason=length` and an identical count between tokenizer and server. The prefill measured `175.83 prompt tok/s` and the TTFT was `227.56 s`; this proves capacity above 32K and also evidences the cost of real context.
 
-Gate 4 also passed: `245760` prompt tokens, 1 output token, streaming, `finish_reason=length`, `96,08 prompt tok/s`, TTFT of `2557,78 s` and wall time of `2558,19 s` (~42m38s), with no memory guard abort and a healthy service at the end. That canary reused `38912` tokens and reprocessed `206848`; therefore, it proves capacity close to the threshold in that measured state, not a fully cold prefill nor long-context quality.
+Gate 4 also passed: `245760` prompt tokens, 1 output token, streaming, `finish_reason=length`, `96.08 prompt tok/s`, TTFT of `2557.78 s` and wall time of `2558.19 s` (~42m38s), with no memory guard abort and a healthy service at the end. That canary reused `38912` tokens and reprocessed `206848`; therefore, it proves capacity close to the threshold in that measured state, not a fully cold prefill nor long-context quality.
 
 After independent review and promotion of the request-scope and Lightning MTP boundary guards, a fifth gate covered the four real HTTP modes in the new process:
 
 | Endpoint/mode | Effective prompt + output | Wall time | Cached prefix |
 |---|---:|---:|---:|
-| Chat streaming | `262140 + 4` | `71,301 s` | `258048` |
-| Chat non-streaming | `262143 + 1` | `36,497 s` | `260096` |
-| Raw completion streaming | `262140 + 4` | `36,467 s` | `260096` |
-| Raw completion non-streaming | `262143 + 1` | `36,126 s` | `260096` |
+| Chat streaming | `262140 + 4` | `71.301 s` | `258048` |
+| Chat non-streaming | `262143 + 1` | `36.497 s` | `260096` |
+| Raw completion streaming | `262140 + 4` | `36.467 s` | `260096` |
+| Raw completion non-streaming | `262143 + 1` | `36.126 s` | `260096` |
 
-All finished exactly at `262144` tokens, with `finish_reason=length`; each call asked for `8192` tokens, and the facade bound to the request only the `4` or `1` remaining token. This gate proves live boundary safety — not cold prefill. There was no `_MtpSafetyViolation` and no memory guard abort. The largest momentary RSS observed during the campaign was ~`30,52 GiB`, the lowest system free memory was `33%`, and there was no continuous peak trace.
+All finished exactly at `262144` tokens, with `finish_reason=length`; each call asked for `8192` tokens, and the facade bound to the request only the `4` or `1` remaining token. This gate proves live boundary safety — not cold prefill. There was no `_MtpSafetyViolation` and no memory guard abort. The largest momentary RSS observed during the campaign was ~`30.52 GiB`, the lowest system free memory was `33%`, and there was no continuous peak trace.
 
 The startup verifier complements the canaries with an ASGI matrix across the four completion/chat × streaming/non-streaming modes, concurrency/error, isolated `32768` rollback profile, MTP edge limits and byte-for-byte comparison of the critical installed sources against the pinned wheel. After the canaries, both the quick and the full cryptographic verifier passed; an authenticated smoke test through the Open WebUI proxy also returned HTTP 200 from the `local.qwen38-omlx` model. The structured evidence, including hashes of the promoted code, is in `~/models/qwen38-omlx/context-256k-validation.json`.
 
