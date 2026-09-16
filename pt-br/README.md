@@ -1,4 +1,4 @@
-<img src="../assets/banner.svg" width="100%"
+<img src="../assets/banner.pt-br.svg" width="100%"
      alt="IA local no Mac — guia de implantação: stack de IA local com Open WebUI, modelo local por oMLX e acesso remoto seguro">
 
 # IA local no Mac — guia de implantação
