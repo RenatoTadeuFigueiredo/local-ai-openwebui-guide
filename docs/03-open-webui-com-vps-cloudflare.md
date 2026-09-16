@@ -8,7 +8,7 @@
 
 > Este é exclusivamente o cenário **com VPS**. Para executar tudo no Mac, sem VPS, use [`02-open-webui-sem-vps-macos-cloudflare.md`](02-open-webui-sem-vps-macos-cloudflare.md).
 >
-> Como este cenário ainda não foi executado, ele adota para instalações novas o perfil clean-room [`../qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md): checkpoint comunitário `fcmeyer/...@0299356…`, declarado como derivado do `Qwen/Qwen3.8-27B`. Instale, verifique e execute o canário 40K do modelo no Mac antes de publicar a API pelo Tunnel.
+> Como este cenário ainda não foi executado, ele adota para instalações novas o perfil clean-room [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md): checkpoint comunitário `fcmeyer/...@0299356…`, declarado como derivado do `Qwen/Qwen3.8-27B`. Instale, verifique e execute o canário 40K do modelo no Mac antes de publicar a API pelo Tunnel.
 
 ---
 

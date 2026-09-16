@@ -244,7 +244,7 @@ Isso é um controle do POC, não um firewall corporativo completo.
 Fonte versionável:
 
 ```text
-browser-hitl-poc/
+examples/browser-hitl-poc/
 ├── browser_hitl/
 │   ├── api.py
 │   ├── egress_proxy.py
@@ -265,7 +265,7 @@ browser-hitl-poc/
 Segredos locais, ignorados por Git:
 
 ```text
-browser-hitl-poc/secrets/
+examples/browser-hitl-poc/secrets/
 ├── tool-api-key
 ├── admin-api-key
 └── portal-signing-key
@@ -308,7 +308,7 @@ Como traces de navegação podem crescer rapidamente, a compactação automátic
 ### Estado
 
 ```bash
-cd browser-hitl-poc
+cd examples/browser-hitl-poc
 docker compose ps
 docker logs --tail=100 openwebui-browser-hitl-poc
 curl -fsS http://127.0.0.1:3210/health
@@ -332,7 +332,7 @@ A instalação anterior de patch em `frontend/index.html` foi removida; o arquiv
 ### Reprovisionamento idempotente
 
 ```bash
-cd browser-hitl-poc
+cd examples/browser-hitl-poc
 ./provision_poc.py \
   --user '<UUID_RENATO>' \
   --user '<UUID_GIOVANNA>'
@@ -351,14 +351,14 @@ O comando:
 ### Parar sem apagar perfis
 
 ```bash
-cd browser-hitl-poc
+cd examples/browser-hitl-poc
 docker compose stop
 ```
 
 ### Reiniciar
 
 ```bash
-cd browser-hitl-poc
+cd examples/browser-hitl-poc
 docker compose start
 ```
 

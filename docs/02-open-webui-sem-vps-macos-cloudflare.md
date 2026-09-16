@@ -8,7 +8,7 @@
 
 > Este é exclusivamente o cenário **sem VPS**. Para manter o WebUI e o OpenRouter disponíveis quando o Mac estiver desligado, use [`03-open-webui-com-vps-cloudflare.md`](03-open-webui-com-vps-cloudflare.md).
 >
-> **Proveniência do estado implantado:** `qwen38-omlx` neste runbook é o checkpoint uncensored `pyros-vault/...@13ec629…`, preservado como registro operacional. Para outra máquina ou instalação nova, a recomendação é o perfil separado `qwen38-official-omlx`, documentado em [`../qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Não troque IDs/caminhos neste documento sem executar e datar uma migração real.
+> **Proveniência do estado implantado:** `qwen38-omlx` neste runbook é o checkpoint uncensored `pyros-vault/...@13ec629…`, preservado como registro operacional. Para outra máquina ou instalação nova, a recomendação é o perfil separado `qwen38-official-omlx`, documentado em [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Não troque IDs/caminhos neste documento sem executar e datar uma migração real.
 
 ## Convenções: substitua pelos seus valores
 

@@ -4,13 +4,13 @@
 **Hardware-alvo:** Apple M3 Max, GPU de 40 núcleos, 128 GB de memória unificada  
 **Objetivo:** instalar um Qwen3.8-27B local com oMLX, Lightning MTP e contexto nativo de 262144 sem requantização local
 
-> O guia executável completo está em [`../qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Este arquivo é a entrada curta do índice de documentação.
+> O guia executável completo está em [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md). Este arquivo é a entrada curta do índice de documentação.
 
 ---
 
 ## Recomendação
 
-Use o bundle [`../qwen38-official-omlx/`](../examples/qwen38-official-omlx/) para baixar e executar:
+Use o bundle [`../examples/qwen38-official-omlx/`](../examples/qwen38-official-omlx/) para baixar e executar:
 
 ```text
 fcmeyer/Qwen3.8-27B-MLX-oQ4e-mtp
@@ -36,7 +36,7 @@ Pré-condição: obtenha uma cópia confiável/versionada do workspace. Este doc
 
 ```bash
 brew install python@3.12
-cd qwen38-official-omlx
+cd examples/qwen38-official-omlx
 ./install.sh --target "$HOME/models/qwen38-official-omlx"
 "$HOME/models/qwen38-official-omlx/qwen38-official" start
 "$HOME/models/qwen38-official-omlx/qwen38-official" chat \

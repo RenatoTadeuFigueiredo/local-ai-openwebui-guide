@@ -161,7 +161,7 @@ A saída deve estar vazia. Se outro perfil já usa `8084`, pare-o deliberadament
 Execute a partir da raiz de uma **cópia confiável/versionada deste workspace**:
 
 ```bash
-cd qwen38-official-omlx
+cd examples/qwen38-official-omlx
 ./install.sh --target "$HOME/models/qwen38-official-omlx"
 ```
 

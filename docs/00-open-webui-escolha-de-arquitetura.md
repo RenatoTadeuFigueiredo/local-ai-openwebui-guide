@@ -15,7 +15,7 @@ Este arquivo ajuda a escolher hospedagem e modelo. Os procedimentos completos pe
 Para uma **nova instalação reproduzível** num M3 Max de 40 núcleos GPU e 128 GB, use:
 
 - [`05-qwen38-oficial-omlx-clean-room.md`](05-qwen38-oficial-omlx-clean-room.md) — visão geral;
-- [`../qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md) — guia executável e bundle.
+- [`../examples/qwen38-official-omlx/README.md`](../examples/qwen38-official-omlx/README.md) — guia executável e bundle.
 
 Esse caminho baixa `fcmeyer/Qwen3.8-27B-MLX-oQ4e-mtp@0299356…`, uma quantização comunitária fixada que declara o modelo oficial `Qwen/Qwen3.8-27B` como base. Não há requantização local.
 
