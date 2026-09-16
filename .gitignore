@@ -1,0 +1,14 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+.test-venv/
+
+# local config and secrets — the .example files are versioned instead
+examples/browser-hitl-poc/.env
+examples/browser-hitl-poc/secrets/*
+!examples/browser-hitl-poc/secrets/*.example

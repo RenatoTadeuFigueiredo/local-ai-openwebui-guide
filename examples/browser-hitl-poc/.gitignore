@@ -1,0 +1,10 @@
+# local state — regenerate with the commands in README.md
+.env
+secrets/*
+!secrets/*.example
+
+.test-venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/

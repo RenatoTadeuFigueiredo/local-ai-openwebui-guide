@@ -1,0 +1,61 @@
+name: openwebui-browser-hitl-poc
+
+services:
+  broker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local/openwebui-browser-hitl-poc:0.1.0
+    container_name: openwebui-browser-hitl-poc
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:./chromium-seccomp.json   # profile versionado neste repositório
+    cap_drop:
+      - ALL
+    pids_limit: 768
+    mem_limit: 8g
+    cpus: 4.0
+    shm_size: 1g
+    healthcheck:
+      test:
+        - CMD
+        - /home/cptr/.venv/bin/python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:3210/health', timeout=2).read()
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    ports:
+      - "127.0.0.1:3210:3210"
+    environment:
+      BROWSER_HITL_PUBLIC_BASE_URL: ${BROWSER_HITL_PUBLIC_BASE_URL:-http://127.0.0.1:3210}
+      BROWSER_HITL_PUBLIC_HOST: ${BROWSER_HITL_PUBLIC_HOST:-127.0.0.1}
+      BROWSER_HITL_ACCESS_REQUIRED: ${BROWSER_HITL_ACCESS_REQUIRED:-false}
+      BROWSER_HITL_ACCESS_TEAM_DOMAIN: ${BROWSER_HITL_ACCESS_TEAM_DOMAIN:-}
+      BROWSER_HITL_ACCESS_AUDIENCE: ${BROWSER_HITL_ACCESS_AUDIENCE:-}
+      BROWSER_HITL_HUMAN_CONTROL_TTL_SECONDS: ${BROWSER_HITL_HUMAN_CONTROL_TTL_SECONDS:-3600}
+      BROWSER_HITL_TOOL_SECRET_FILE: /run/secrets/tool-api-key
+      BROWSER_HITL_ADMIN_SECRET_FILE: /run/secrets/admin-api-key
+      BROWSER_HITL_PORTAL_SECRET_FILE: /run/secrets/portal-signing-key
+    volumes:
+      - browser-hitl-poc-data:/data
+      - type: bind
+        source: ./secrets/tool-api-key
+        target: /run/secrets/tool-api-key
+        read_only: true
+      - type: bind
+        source: ./secrets/admin-api-key
+        target: /run/secrets/admin-api-key
+        read_only: true
+      - type: bind
+        source: ./secrets/portal-signing-key
+        target: /run/secrets/portal-signing-key
+        read_only: true
+
+volumes:
+  browser-hitl-poc-data:

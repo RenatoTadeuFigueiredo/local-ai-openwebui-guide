@@ -1,0 +1,4 @@
+;; Local inference profile: allow normal file/Metal access, deny all outbound sockets.
+(version 1)
+(allow default)
+(deny network-outbound)

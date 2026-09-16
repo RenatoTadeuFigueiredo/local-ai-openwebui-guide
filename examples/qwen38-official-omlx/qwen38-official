@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SELF="${BASH_SOURCE[0]}"
+while [[ -L "$SELF" ]]; do
+  TARGET="$(readlink "$SELF")"
+  [[ "$TARGET" == /* ]] && SELF="$TARGET" || SELF="$(dirname "$SELF")/$TARGET"
+done
+ROOT="$(cd "$(dirname "$SELF")" && pwd)"
+STATE="$ROOT/state"
+PIDFILE="$STATE/server.pid"
+LOG="$STATE/launcher.log"
+URL="http://127.0.0.1:8084"
+MODEL="qwen38-official-omlx"
+
+pid() { [[ -f "$PIDFILE" ]] && cat "$PIDFILE" || true; }
+owned_pid() {
+  local p="${1:-}" command
+  [[ "$p" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$p" 2>/dev/null || return 1
+  command="$(ps -ww -o command= -p "$p" 2>/dev/null || true)"
+  [[ "$command" == "$ROOT/runtime/venv/bin/python $ROOT/secure_server.py" ||
+     "$command" == *"$ROOT/serve.sh"* ||
+     "$command" == *"$ROOT/launchd-start.sh"* ]]
+}
+launchd_active() {
+  launchctl print "gui/$(id -u)/com.local.qwen38-official" >/dev/null 2>&1
+}
+alive() { owned_pid "$(pid)"; }
+api() { curl -fsS -H "@$STATE/auth-header" "$@"; }
+
+start() {
+  alive && { echo "já está rodando (pid $(pid)) em $URL"; return 0; }
+  if launchd_active; then
+    echo "LaunchAgent instalado: use launchctl kickstart -k gui/$(id -u)/com.local.qwen38-official" >&2
+    return 1
+  fi
+  if [[ -f "$PIDFILE" ]] && [[ -n "$(pid)" ]] && kill -0 "$(pid)" 2>/dev/null; then
+    echo "PID file pertence a outro processo: $(pid)" >&2
+    return 1
+  fi
+  rm -f "$PIDFILE"
+  if lsof -tiTCP:8084 -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "porta 8084 já está ocupada" >&2
+    return 1
+  fi
+  "$ROOT/runtime/venv/bin/python" "$ROOT/verify-model.py" --quick
+  umask 077
+  nohup "$ROOT/serve.sh" >"$LOG" 2>&1 &
+  local started_pid=$!
+  echo "$started_pid" >"$PIDFILE"
+  cleanup_failed_start() {
+    if [[ "$(pid)" == "$started_pid" ]] && owned_pid "$started_pid"; then
+      kill "$started_pid" 2>/dev/null || true
+      for _ in $(seq 1 30); do owned_pid "$started_pid" || break; sleep 1; done
+      owned_pid "$started_pid" && kill -9 "$started_pid" 2>/dev/null || true
+    fi
+    [[ "$(pid)" == "$started_pid" ]] && rm -f "$PIDFILE"
+  }
+  trap 'cleanup_failed_start; exit 130' INT
+  trap 'cleanup_failed_start; exit 143' TERM HUP
+  printf 'iniciando qwen38-official'
+  for _ in $(seq 1 300); do
+    if curl -sf "$URL/health" >/dev/null 2>&1; then
+      status="$(api "$URL/api/status" 2>/dev/null || true)"
+      if python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if "qwen38-official-omlx" in d.get("loaded_models",[]) else 1)' <<<"$status" 2>/dev/null; then
+        trap - INT TERM HUP
+        echo " -> pronto em $URL"
+        return 0
+      fi
+    fi
+    if ! owned_pid "$started_pid"; then
+      trap - INT TERM HUP
+      echo " -> falhou" >&2
+      tail -80 "$LOG" >&2 || true
+      cleanup_failed_start
+      return 1
+    fi
+    printf '.'
+    sleep 2
+  done
+  echo " -> timeout" >&2
+  cleanup_failed_start
+  trap - INT TERM HUP
+  return 1
+}
+
+stop() {
+  if launchd_active; then
+    echo "LaunchAgent instalado: use launchctl bootout gui/$(id -u)/com.local.qwen38-official" >&2
+    return 1
+  fi
+  local stopped_pid
+  stopped_pid="$(pid)"
+  alive || { echo "parado"; rm -f "$PIDFILE"; return 0; }
+  kill "$stopped_pid" 2>/dev/null || true
+  for _ in $(seq 1 60); do owned_pid "$stopped_pid" || break; sleep 1; done
+  owned_pid "$stopped_pid" && kill -9 "$stopped_pid" 2>/dev/null || true
+  [[ "$(pid)" == "$stopped_pid" ]] && rm -f "$PIDFILE"
+  echo "parado"
+}
+
+status() {
+  alive || { echo "parado"; return 0; }
+  echo "rodando $MODEL (pid $(pid)) em $URL"
+  ps -o rss= -p "$(pid)" 2>/dev/null | awk '{printf "processo : %.1f GiB RSS\n", $1/1048576}' || true
+  api "$URL/api/status" 2>/dev/null | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+print("carregado:", ", ".join(d.get("loaded_models", [])) or "nenhum")
+print("fila     :", d.get("active_requests",0), "ativa(s),", d.get("waiting_requests",0), "aguardando")
+print("média    :", d.get("avg_generation_tps",0), "tok/s")
+print("memória  :", d.get("model_memory_used_formatted","?"), "/", d.get("model_memory_max_formatted","?"))
+' || true
+}
+
+chat() {
+  [[ $# -gt 0 ]] || { echo 'uso: qwen38-official chat "prompt"' >&2; return 1; }
+  alive || { echo "servidor parado" >&2; return 1; }
+  "$ROOT/runtime/venv/bin/python" - "$URL" "$STATE/api-key" "$MODEL" "$*" <<'PY'
+import json,sys,urllib.request
+url,keyfile,model,prompt=sys.argv[1:]
+key=open(keyfile,encoding="utf-8").read().strip()
+body={"model":model,"messages":[{"role":"user","content":prompt}],"max_tokens":2048,"stream":True,"stream_options":{"include_usage":True}}
+req=urllib.request.Request(url+"/v1/chat/completions",json.dumps(body).encode(),{"Content-Type":"application/json","Authorization":"Bearer "+key})
+usage=None
+for raw in urllib.request.urlopen(req,timeout=3600):
+    line=raw.decode().strip()
+    if not line.startswith("data: ") or line=="data: [DONE]": continue
+    event=json.loads(line[6:]); usage=event.get("usage") or usage
+    for choice in event.get("choices") or []:
+        delta=choice.get("delta") or {}
+        text=(delta.get("reasoning_content") or "")+(delta.get("content") or "")
+        if text: print(text,end="",flush=True)
+print()
+if usage:
+    print(json.dumps(usage,ensure_ascii=False),file=sys.stderr)
+PY
+}
+
+case "${1:-status}" in
+  start) start ;;
+  stop) stop ;;
+  restart)
+    if launchd_active; then
+      launchctl kickstart -k "gui/$(id -u)/com.local.qwen38-official"
+      echo "reinício solicitado ao LaunchAgent"
+    else
+      stop
+      start
+    fi
+    ;;
+  status) status ;;
+  logs) tail -F "$STATE/logs/server.log" ;;
+  launcher-logs) tail -F "$LOG" ;;
+  verify) shift; "$ROOT/runtime/venv/bin/python" "$ROOT/verify-model.py" "$@" ;;
+  context)
+    [[ $# -eq 2 ]] || { echo "uso: qwen38-official context {32768|262144}" >&2; exit 2; }
+    "$ROOT/runtime/venv/bin/python" "$ROOT/set-context.py" "$2"
+    ;;
+  chat) shift; chat "$@" ;;
+  url) echo "$URL/v1" ;;
+  *) echo "uso: qwen38-official {start|stop|restart|status|logs|launcher-logs|verify [--quick]|context {32768|262144}|chat|url}" >&2; exit 2 ;;
+esac

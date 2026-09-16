@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "models": {
+    "qwen38-official-omlx": {
+      "max_context_window": 262144,
+      "max_tokens": 8192,
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 20,
+      "repetition_penalty": 1.0,
+      "presence_penalty": 0.0,
+      "force_sampling": false,
+      "model_type_override": "llm",
+      "model_alias": "qwen38-official-omlx",
+      "enable_thinking": true,
+      "preserve_thinking": true,
+      "thinking_budget_enabled": false,
+      "reasoning_parser": "qwen",
+      "guided_grammar_enabled": false,
+      "turboquant_kv_enabled": false,
+      "qwen35_ane_prefill_enabled": false,
+      "specprefill_enabled": false,
+      "dflash_enabled": false,
+      "mtp_enabled": true,
+      "mtp_num_draft_tokens": 3,
+      "vlm_mtp_enabled": false,
+      "is_pinned": true,
+      "is_default": true,
+      "is_hidden": false,
+      "is_favorite": true,
+      "trust_remote_code": false,
+      "display_name": "Qwen3.8 27B derivado do oficial — oQ4e + Lightning MTP",
+      "description": "Quantização comunitária fcmeyer fixada, declarada como derivada de Qwen/Qwen3.8-27B; perfil de texto; contexto total 262144."
+    }
+  }
+}

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools==80.10.2", "wheel==0.46.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openwebui-browser-hitl"
+version = "0.1.0"
+description = "Multi-user browser broker POC with persistent Chromium profiles and fenced human takeover."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.141.1",
+  "playwright==1.62.0",
+  "pydantic==2.13.4",
+  "PyJWT[crypto]==2.13.0",
+  "uvicorn==0.52.1",
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx==0.28.1",
+  "pytest==9.0.2",
+  "pytest-asyncio==1.3.0",
+]
+
+[project.scripts]
+browser-hitl-broker = "browser_hitl.api:main"
+
+[tool.setuptools.packages.find]
+include = ["browser_hitl*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
