@@ -1,0 +1,5 @@
+;; oMLX experiment sandbox: keep the local API usable but deny every outbound
+;; connection, including the built-in web-search/fetch routes.
+(version 1)
+(allow default)
+(deny network-outbound)

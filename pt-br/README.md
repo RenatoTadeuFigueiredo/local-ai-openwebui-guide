@@ -59,6 +59,7 @@ Leia na ordem. 00 e 02 são o caminho; o resto é contexto ou opcional.
 | 03 | [Open WebUI com VPS](docs/03-deploy-with-vps.md) | **Opcional.** Só se o WebUI precisar ficar no ar com o Mac desligado. Ainda não executado |
 | 04 | [Browser HITL multiusuário](docs/04-browser-hitl-multi-user-poc.md) | Automação de sites com login humano e perfis isolados |
 | 05 | [Qwen3.8 derivado do oficial — clean-room](docs/05-cleanroom-install.md) | Instalação reproduzível, sem requantizar |
+| 06 | [Adicionar um segundo modelo local](docs/06-second-local-model.md) | Segundo perfil isolado ao lado do primeiro, sem tocá-lo |
 
 **Comece pelo 00.** Ele fixa a arquitetura local e marca o ramo com VPS como opcional.
 
@@ -68,7 +69,7 @@ Honestidade importa mais que marketing:
 
 | | |
 |---|---|
-| **Executado e validado** | 02 (implantação principal, 256K, guards, backup cifrado), 04 (POC local e publicação com OTP) |
+| **Executado e validado** | 02 (implantação principal, 256K, guards, backup cifrado), 04 (POC local e publicação com OTP), 06 (segundo perfil, ponta a ponta) |
 | **Não executado** | 03 (runbook de VPS) |
 | **Estruturalmente validado, sem medição** | 05 (bundle e verificadores exercitados em perfil sintético; falta a instalação real) |
 | **Pendências conhecidas** | reboot físico pós-login, cópia de disaster recovery externa, confirmação de roteador, alertas operacionais, E2E móvel de baixo risco |
@@ -85,6 +86,7 @@ Código de referência do que os documentos descrevem. Não é necessário para 
 |---|---|
 | [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Broker multiusuário de navegador: perfis persistentes, lock server-side, takeover fenced. 8 arquivos de teste |
 | [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Bundle de instalação do modelo, com revisão fixada, hashes e verificador |
+| [`examples/ornith15-omlx/`](examples/ornith15-omlx/) | Segundo perfil isolado: modelo 9B com Lightning MTP, porta, verificador e script de wiring próprios |
 
 ---
 

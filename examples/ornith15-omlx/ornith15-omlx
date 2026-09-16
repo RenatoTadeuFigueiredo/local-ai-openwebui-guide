@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# Control the isolated Ornith-1.5-9B oMLX + Lightning MTP profile on port 8086.
+set -euo pipefail
+
+SELF="${BASH_SOURCE[0]}"
+while [[ -L "$SELF" ]]; do
+  TARGET="$(readlink "$SELF")"
+  [[ "$TARGET" == /* ]] && SELF="$TARGET" || SELF="$(dirname "$SELF")/$TARGET"
+done
+ROOT="$(cd "$(dirname "$SELF")" && pwd)"
+STATE="$ROOT/state"
+PIDFILE="$STATE/server.pid"
+LOG="$STATE/launcher.log"
+PORT=8086
+HOST="127.0.0.1"
+URL="http://$HOST:$PORT"
+MODEL="ornith15-omlx"
+KEYFILE="$STATE/api-key"
+
+pid() { [[ -f "$PIDFILE" ]] && cat "$PIDFILE" || true; }
+owned_pid() {
+  local p="${1:-}" command
+  [[ "$p" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$p" 2>/dev/null || return 1
+  command="$(ps -ww -o command= -p "$p" 2>/dev/null || true)"
+  [[ "$command" == "$ROOT/runtime/venv/bin/python $ROOT/secure_server.py" ||
+     "$command" == *"$ROOT/secure_server.py" ||
+     "$command" == *"$ROOT/serve.sh"* ]]
+}
+alive() { owned_pid "$(pid)"; }
+api() { curl -fsS -H "@$STATE/auth-header" "$@"; }
+
+start() {
+  alive && { echo "already running (pid $(pid)) on $URL"; return 0; }
+  if [[ -f "$PIDFILE" ]] && [[ -n "$(pid)" ]] && kill -0 "$(pid)" 2>/dev/null; then
+    echo "refusing to replace stale PID file: pid $(pid) is not this ornith-omlx profile" >&2
+    return 1
+  fi
+  rm -f "$PIDFILE"
+  if lsof -tiTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "port $PORT already in use" >&2
+    return 1
+  fi
+  "$ROOT/runtime/venv/bin/python" "$ROOT/verify-model.py" --quick
+  umask 077
+  nohup "$ROOT/serve.sh" >"$LOG" 2>&1 &
+  local started_pid=$!
+  echo "$started_pid" >"$PIDFILE"
+  # serve-omlx performs validation before exec'ing Python. Wait through that
+  # short, owned bootstrap phase so supervision cannot orphan a healthy server.
+  for _ in $(seq 1 100); do
+    owned_pid "$started_pid" && break
+    kill -0 "$started_pid" 2>/dev/null || break
+    sleep .05
+  done
+  cleanup_failed_start() {
+    if [[ "$(pid)" == "$started_pid" ]] && kill -0 "$started_pid" 2>/dev/null; then
+      kill "$started_pid" 2>/dev/null || true
+      for _ in $(seq 1 30); do kill -0 "$started_pid" 2>/dev/null || break; sleep 1; done
+      kill -0 "$started_pid" 2>/dev/null && kill -9 "$started_pid" 2>/dev/null || true
+    fi
+    [[ "$(pid)" == "$started_pid" ]] && rm -f "$PIDFILE"
+  }
+  trap 'cleanup_failed_start; exit 130' INT
+  trap 'cleanup_failed_start; exit 143' TERM HUP
+  printf 'starting ornith-omlx'
+  for _ in $(seq 1 300); do
+    if curl -sf "$URL/health" >/dev/null 2>&1; then
+      status="$(api "$URL/api/status" 2>/dev/null || true)"
+      if python3 -c 'import json,sys; d=json.load(sys.stdin); raise SystemExit(0 if "ornith15-omlx" in d.get("loaded_models",[]) else 1)' <<<"$status" 2>/dev/null; then
+        trap - INT TERM HUP
+        echo " -> ready on $URL"
+        return 0
+      fi
+    fi
+    if ! alive; then
+      trap - INT TERM HUP
+      echo " -> failed:"
+      tail -80 "$LOG" >&2 || true
+      rm -f "$PIDFILE"
+      return 1
+    fi
+    printf '.'
+    sleep 2
+  done
+  echo " -> timeout waiting for loaded model" >&2
+  tail -80 "$LOG" >&2 || true
+  cleanup_failed_start
+  trap - INT TERM HUP
+  return 1
+}
+
+stop() {
+  alive || { echo "not running"; rm -f "$PIDFILE"; return 0; }
+  kill "$(pid)" 2>/dev/null || true
+  for _ in $(seq 1 60); do alive || break; sleep 1; done
+  alive && kill -9 "$(pid)" 2>/dev/null || true
+  rm -f "$PIDFILE"
+  echo "stopped"
+}
+
+status() {
+  alive || { echo "stopped"; return 0; }
+  echo "running ornith-omlx (pid $(pid)) on $URL"
+  ps -o rss= -p "$(pid)" 2>/dev/null | awk '{printf "process  : %.1f GiB resident\n", $1/1048576}' || true
+  api "$URL/api/status" 2>/dev/null | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+print("loaded   :", ", ".join(d.get("loaded_models", [])) or "none")
+print("requests :", d.get("active_requests", 0), "active /", d.get("waiting_requests", 0), "waiting")
+print("speed    :", d.get("avg_generation_tps", 0), "tok/s session average")
+print("memory   :", d.get("model_memory_used_formatted", "?"), "/", d.get("model_memory_max_formatted", "?"))
+kernels = d.get("custom_kernels", {})
+print("kernels  :", "all available" if kernels and all(v.get("available") for v in kernels.values()) else kernels)
+' || true
+}
+
+chat() {
+  local effort="$1"; shift
+  [[ $# -gt 0 ]] || { echo 'usage: ornith-omlx chat[-fast] "prompt"' >&2; return 1; }
+  alive || { echo "not running" >&2; return 1; }
+  python3 - "$URL" "$KEYFILE" "$MODEL" "$effort" "$*" <<'PY'
+import json, sys, urllib.request
+url, keyfile, model, effort, prompt = sys.argv[1:]
+key = open(keyfile, encoding="utf-8").read().strip()
+body = {
+    "model": model,
+    "messages": [{"role": "user", "content": prompt}],
+    "max_tokens": 2048,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 20,
+    "stream": True,
+    "stream_options": {"include_usage": True},
+}
+if effort == "off":
+    body["chat_template_kwargs"] = {"enable_thinking": False}
+elif effort:
+    body["reasoning_effort"] = effort
+request = urllib.request.Request(
+    url + "/v1/chat/completions",
+    json.dumps(body).encode(),
+    {"Content-Type": "application/json", "Authorization": "Bearer " + key},
+)
+usage = None
+for raw in urllib.request.urlopen(request, timeout=3600):
+    line = raw.decode().strip()
+    if not line.startswith("data: ") or line == "data: [DONE]":
+        continue
+    event = json.loads(line[6:])
+    if event.get("usage"):
+        usage = event["usage"]
+    choices = event.get("choices") or []
+    if choices:
+        delta = choices[0].get("delta") or {}
+        text = delta.get("content") or ""
+        reasoning = delta.get("reasoning_content") or ""
+        if reasoning:
+            sys.stdout.write(reasoning)
+        if text:
+            sys.stdout.write(text)
+        sys.stdout.flush()
+print()
+if usage and usage.get("generation_tokens_per_second") is not None:
+    print(f"[{usage['generation_tokens_per_second']:.2f} tok/s; {usage.get('completion_tokens', 0)} tokens]", file=sys.stderr)
+PY
+}
+
+case "${1:-status}" in
+  start) start ;;
+  stop) stop ;;
+  restart) stop; start ;;
+  status) status ;;
+  logs) tail -f "$STATE/logs/server.log" ;;
+  launcher-logs) tail -f "$LOG" ;;
+  chat) shift; chat xhigh "$@" ;;
+  chat-medium) shift; chat medium "$@" ;;
+  chat-fast) shift; chat off "$@" ;;
+  verify) shift; "$ROOT/runtime/venv/bin/python" "$ROOT/verify-model.py" "$@" ;;
+  url) echo "$URL/v1" ;;
+  *) echo "usage: ornith-omlx {start|stop|restart|status|logs|launcher-logs|chat|chat-medium|chat-fast|verify [--quick]|url}" >&2; exit 2 ;;
+esac

@@ -61,6 +61,7 @@ Read in order. 00 and 02 are the path; everything else is context or optional.
 | 03 | [Deploy with a VPS](docs/03-deploy-with-vps.md) | **Optional.** Only if the WebUI must stay up while the Mac is off. Not yet executed |
 | 04 | [Browser HITL, multi-user](docs/04-browser-hitl-multi-user-poc.md) | Automating sites with human login and isolated profiles |
 | 05 | [Clean-room model install](docs/05-cleanroom-install.md) | Reproducible install, no local re-quantisation |
+| 06 | [Adding a second local model](docs/06-second-local-model.md) | A second isolated profile beside the first, without touching it |
 
 **Start with 00.** It sets the local architecture and marks the VPS branch as optional.
 
@@ -70,7 +71,7 @@ Honesty over marketing:
 
 | | |
 |---|---|
-| **Executed and validated** | 02 (main deployment, 256K context, guards, encrypted backup), 04 (local POC and OTP-protected publication) |
+| **Executed and validated** | 02 (main deployment, 256K context, guards, encrypted backup), 04 (local POC and OTP-protected publication), 06 (second profile, end to end) |
 | **Not executed** | 03 (VPS runbook) |
 | **Structurally validated, not measured** | 05 (bundle and verifiers exercised against a synthetic profile; the real install is still pending) |
 | **Known pending items** | post-login physical reboot, external disaster-recovery copy, router confirmation, operational alerts, low-risk mobile E2E |
@@ -87,6 +88,7 @@ Reference code for what the documents describe. Not required in order to follow 
 |---|---|
 | [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Multi-user browser broker: persistent profiles, server-side lock, fenced takeover. 8 test files |
 | [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Model install bundle with pinned revision, hashes, and a verifier |
+| [`examples/ornith15-omlx/`](examples/ornith15-omlx/) | Second isolated profile: 9B with Lightning MTP, own port, verifier and wiring script |
 
 ---
 
