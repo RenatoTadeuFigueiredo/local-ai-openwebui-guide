@@ -1,0 +1,335 @@
+#!/usr/bin/env bash
+# local-ai - bring the local AI stack up and down on demand.
+#
+# Nothing in this stack starts at login. The LaunchAgents live outside
+# ~/Library/LaunchAgents, the only directory launchd auto-loads, so a unit
+# exists only while `local-ai up` has bootstrapped it. While it runs, launchd
+# still owns the process: supervision, throttling and log redirection come from
+# the plist, not from this script.
+#
+#   local-ai up [--tunnel] [--docker] [--legacy] [--open]
+#   local-ai down [--docker]
+#   local-ai restart [same flags as up]
+#   local-ai status
+#   local-ai logs <unit>
+#
+# Units: ornith (8086), qwen (8084), openwebui (3000), tunnel, docker, legacy (8080).
+set -euo pipefail
+umask 077
+
+AGENTS_DIR="${LOCAL_AI_AGENTS_DIR:-$HOME/.config/local-ai/agents}"
+DOMAIN="gui/$(id -u)"
+MODEL_TIMEOUT=300
+SERVICE_TIMEOUT=90
+
+die() { printf 'local-ai: %s\n' "$*" >&2; exit 1; }
+
+# ---------------------------------------------------------------- unit table
+# label | kind | port | profile root | controller
+unit_row() {
+  case "$1" in
+    ornith)    echo "com.local.ornith-omlx|model|8086|$HOME/models/ornith15-omlx|ornith15-omlx" ;;
+    qwen)      echo "com.local.qwen-omlx|model|8084|$HOME/models/qwen38-omlx|qwen-omlx" ;;
+    openwebui) echo "com.local.openwebui|http|3000||" ;;
+    tunnel)    echo "com.local.cloudflared-openwebui|tunnel|20241||" ;;
+    docker)    echo "com.local.docker-desktop-openwebui|docker||" ;;
+    legacy)    echo "com.mlx-server|legacy|8080||" ;;
+    *) return 1 ;;
+  esac
+}
+
+field() { unit_row "$1" | cut -d'|' -f"$2"; }
+kind_of() { field "$1" 2; }
+label_of() { field "$1" 1; }
+port_of() { field "$1" 3; }
+root_of() { field "$1" 4; }
+controller_of() { field "$1" 5; }
+
+# ------------------------------------------------------------------ primitives
+loaded() { launchctl print "$DOMAIN/$1" >/dev/null 2>&1; }
+
+loaded_pid() {
+  launchctl print "$DOMAIN/$1" 2>/dev/null | awk '/^[[:space:]]*pid = /{print $3; exit}'
+}
+
+# `|| true` keeps an empty result from tripping `set -e` at the call sites.
+port_pid() { lsof -tiTCP:"$1" -sTCP:LISTEN 2>/dev/null | head -1 || true; }
+
+unit_pid() {
+  local name="$1" p port
+  p="$(loaded_pid "$(label_of "$name")")"
+  port="$(port_of "$name")"
+  if [[ -z "$p" && -n "$port" ]]; then
+    p="$(port_pid "$port")"
+  fi
+  printf '%s' "$p"
+}
+
+rss_of() {
+  local p="$1"
+  [[ -n "$p" ]] || return 0
+  ps -o rss= -p "$p" 2>/dev/null | awk '{printf "%.2f GB", $1/1048576}'
+}
+
+model_ready() {
+  local root="$1" port="$2" model="$3"
+  curl -sf --max-time 5 "http://127.0.0.1:$port/health" >/dev/null 2>&1 || return 1
+  [[ -r "$root/state/auth-header" ]] || return 0
+  curl -sf --max-time 5 -H "@$root/state/auth-header" \
+    "http://127.0.0.1:$port/api/status" 2>/dev/null |
+    python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if sys.argv[1] in d.get("loaded_models",[]) else 1)' "$model" 2>/dev/null
+}
+
+ready() {
+  local name="$1" kind root
+  kind="$(kind_of "$name")"
+  case "$kind" in
+    model)
+      root="$(root_of "$name")"
+      model_ready "$root" "$(port_of "$name")" "$(basename "$root")"
+      ;;
+    http)   curl -sf --max-time 5 "http://127.0.0.1:$(port_of "$name")/health" >/dev/null 2>&1 ;;
+    tunnel) curl -sf --max-time 5 "http://127.0.0.1:$(port_of "$name")/ready" >/dev/null 2>&1 ;;
+    docker) docker info >/dev/null 2>&1 ;;
+    legacy) curl -sf --max-time 5 "http://127.0.0.1:$(port_of "$name")/v1/models" >/dev/null 2>&1 ;;
+  esac
+}
+
+timeout_of() {
+  case "$(kind_of "$1")" in model|docker) echo "$MODEL_TIMEOUT" ;; *) echo "$SERVICE_TIMEOUT" ;; esac
+}
+
+log_path() {
+  local name="$1" root
+  case "$name" in
+    ornith|qwen)
+      root="$(root_of "$name")"
+      echo "$root/state/logs/server.log"
+      ;;
+    openwebui) echo "$HOME/services/open-webui-mac/logs/openwebui.stderr.log" ;;
+    tunnel)    echo "$HOME/services/open-webui-mac/logs/cloudflared.stderr.log" ;;
+    docker)    echo "$HOME/services/open-webui-mac/logs/docker-desktop.stderr.log" ;;
+    legacy)    echo "$HOME/assistente-mac/logs/mlx-server.log" ;;
+  esac
+}
+
+# ------------------------------------------------------------------------ up
+up_unit() {
+  local name="$1" label plist i=0 timeout
+  label="$(label_of "$name")"
+  plist="$AGENTS_DIR/$label.plist"
+  [[ -f "$plist" ]] || die "missing agent: $plist (see examples/local-ai-control/agents)"
+
+  if ready "$name"; then
+    printf '  %-9s already up (pid %s)\n' "$name" "$(unit_pid "$name")"
+    return 0
+  fi
+
+  if loaded "$label"; then
+    printf '  %-9s loaded but not ready, restarting it\n' "$name"
+    launchctl kickstart -k "$DOMAIN/$label" >/dev/null 2>&1 || true
+  else
+    launchctl bootstrap "$DOMAIN" "$plist" 2>/dev/null ||
+      die "$name: launchctl bootstrap failed (is $plist valid? try: plutil -lint $plist)"
+  fi
+
+  # Units without RunAtLoad load idle: nudge them once, after the ones that
+  # start on their own have had time to fork.
+  sleep 2
+  if [[ -z "$(loaded_pid "$label")" ]] && ! ready "$name"; then
+    launchctl kickstart "$DOMAIN/$label" >/dev/null 2>&1 || true
+  fi
+
+  timeout="$(timeout_of "$name")"
+  printf '  %-9s starting' "$name"
+  while (( i < timeout )); do
+    if ready "$name"; then
+      printf ' -> ready (pid %s, %ss)\n' "$(unit_pid "$name")" "$i"
+      return 0
+    fi
+    sleep 1
+    i=$((i + 1))
+    if (( i % 5 == 0 )); then printf '.'; fi
+  done
+  printf ' -> FAILED after %ss\n' "$timeout"
+  return 1
+}
+
+quit_docker() {
+  ready docker || { echo "  docker    already stopped"; return 0; }
+  local running
+  running="$(docker ps -q 2>/dev/null | wc -l | tr -d ' ')"
+  printf '  docker    quitting Docker Desktop (%s container(s) running)\n' "$running"
+  docker desktop stop >/dev/null 2>&1 || osascript -e 'quit app "Docker"' >/dev/null 2>&1 || true
+  local i=0
+  while (( i < 90 )); do
+    ready docker || { echo "  docker    stopped"; return 0; }
+    sleep 1
+    i=$((i + 1))
+  done
+  echo "  docker    still up after 90s - check the Docker Desktop window" >&2
+  return 1
+}
+
+cmd_up() {
+  local units="ornith qwen openwebui" failed=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --tunnel) units="$units tunnel" ;;
+      --docker) units="docker $units" ;;
+      --legacy) units="$units legacy" ;;
+      --all)    units="docker $units tunnel legacy" ;;
+      --open)   OPEN_WEBUI=1 ;;
+      *) die "unknown flag: $1" ;;
+    esac
+    shift
+  done
+  echo "local-ai: starting"
+  for u in $units; do
+    up_unit "$u" || failed="$failed $u"
+  done
+  if [[ -n "$failed" ]]; then
+    echo "local-ai: failed:${failed} (see: local-ai logs <unit>)" >&2
+  fi
+  if [[ -n "${OPEN_WEBUI:-}" ]] && ready openwebui; then
+    open http://127.0.0.1:3000
+  fi
+  [[ -z "$failed" ]]
+}
+
+# ---------------------------------------------------------------------- down
+controller_stop() {
+  local name="$1" root ctl
+  root="$(root_of "$name")"
+  ctl="$(controller_of "$name")"
+  [[ -n "$ctl" && -x "$root/$ctl" ]] || return 1
+  "$root/$ctl" stop >/dev/null 2>&1
+}
+
+down_unit() {
+  local name="$1" label p i=0
+  label="$(label_of "$name")"
+
+  if loaded "$label"; then
+    launchctl bootout "$DOMAIN/$label" >/dev/null 2>&1 || true
+  fi
+
+  while (( i < 45 )); do
+    p="$(unit_pid "$name")"
+    [[ -z "$p" ]] && break
+    sleep 1
+    i=$((i + 1))
+  done
+
+  if [[ -n "$p" ]]; then
+    # A process that launchd never owned: started by hand through the profile
+    # controller. Ask the controller to stop it, then verify.
+    if controller_stop "$name"; then
+      sleep 1
+      p="$(unit_pid "$name")"
+    fi
+  fi
+
+  if [[ -z "$p" ]]; then
+    printf '  %-9s stopped\n' "$name"
+    return 0
+  fi
+  printf '  %-9s STILL RUNNING (pid %s: %s)\n' "$name" "$p" "$(ps -o command= -p "$p" 2>/dev/null | cut -c1-60)" >&2
+  return 1
+}
+
+cmd_down() {
+  local units="openwebui tunnel qwen ornith legacy" with_docker="" failed="" seen=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --docker|--all) with_docker=1 ;;
+      --tunnel|--legacy|--open) : ;;
+      *) die "unknown flag: $1" ;;
+    esac
+    shift
+  done
+  echo "local-ai: stopping"
+  for u in $units; do
+    if loaded "$(label_of "$u")" || [[ -n "$(unit_pid "$u")" ]]; then
+      seen="$seen $u"
+      down_unit "$u" || failed="$failed $u"
+    fi
+  done
+  [[ -n "$seen" ]] || echo "  (nothing was running)"
+  if [[ -n "$with_docker" ]]; then
+    if loaded "$(label_of docker)"; then launchctl bootout "$DOMAIN/$(label_of docker)" >/dev/null 2>&1 || true; fi
+    quit_docker || failed="$failed docker"
+  else
+    if ready docker; then
+      printf '  %-9s left running (Docker Desktop is shared: use "local-ai down --docker")\n' docker
+    fi
+  fi
+  if [[ -n "$failed" ]]; then
+    echo "local-ai: still running:${failed}" >&2
+  fi
+  [[ -z "$failed" ]]
+}
+
+# -------------------------------------------------------------------- status
+cmd_status() {
+  local units="ornith qwen openwebui tunnel docker legacy" name label p port state lstate
+  printf '%-10s %-8s %-7s %-6s %-8s %s\n' UNIT LAUNCHD PID PORT STATE MEM
+  for name in $units; do
+    label="$(label_of "$name")"
+    port="$(port_of "$name")"
+    p="$(unit_pid "$name")"
+    if loaded "$label"; then lstate=loaded; else lstate=-; fi
+    if ready "$name"; then
+      state=up
+    elif [[ -n "$p" ]]; then
+      state=starting
+    else
+      state=down
+    fi
+    printf '%-10s %-8s %-7s %-6s %-8s %s\n' \
+      "$name" "$lstate" "${p:--}" "${port:--}" "$state" "$(rss_of "$p")"
+  done
+}
+
+# ---------------------------------------------------------------------- misc
+cmd_logs() {
+  local name="${1:-}" path
+  [[ -n "$name" ]] || die "usage: local-ai logs <unit>"
+  unit_row "$name" >/dev/null || die "unknown unit: $name"
+  path="$(log_path "$name")"
+  [[ -f "$path" ]] || die "no log yet at $path"
+  echo "== $path"
+  tail -n 40 -f "$path"
+}
+
+usage() {
+  cat <<'EOF'
+usage: local-ai <command> [flags]
+
+  up [--tunnel] [--docker] [--legacy] [--all] [--open]
+        Start the stack. Default: ornith (8086), qwen (8084), openwebui (3000).
+        --tunnel adds the Cloudflare Tunnel, --docker starts Docker Desktop,
+        --legacy adds the mlx-lm server on 8080, --all adds all three,
+        --open opens the WebUI once it is ready.
+
+  down [--docker]
+        Stop every managed unit that is running. Docker Desktop keeps running
+        (other projects share it) unless --docker is given.
+
+  restart [flags]     down, then up with the same flags.
+  status              Table of unit, launchd state, pid, port, health, memory.
+  logs <unit>         Follow one unit's log.
+
+Units: ornith qwen openwebui tunnel docker legacy
+EOF
+}
+
+case "${1:-status}" in
+  up) shift; cmd_up "$@" ;;
+  down) shift; cmd_down "$@" ;;
+  restart) shift; cmd_down "$@"; cmd_up "$@" ;;
+  status) shift; cmd_status ;;
+  logs) shift; cmd_logs "$@" ;;
+  -h|--help|help) usage ;;
+  *) usage >&2; exit 2 ;;
+esac

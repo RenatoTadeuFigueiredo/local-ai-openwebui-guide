@@ -149,13 +149,21 @@ allowlist de rotas, e falha fechado se o sandbox, os secrets ou as configuraçõ
 `start` roda o verificador, lança via `sandbox-exec` e espera até o modelo estar carregado antes de
 retornar. O controlador só assume processos que consegue provar pertencerem a este perfil.
 
-### Autostart
+### Sob demanda, não no login
+
+O plist vai para `~/.config/local-ai/agents/` em vez de `~/Library/LaunchAgents/`, então nada é
+carregado quando você entra na sessão — quem decide é o `local-ai up`:
 
 ```bash
 sed "s#__PROFILE_ROOT__#$PWD#g" com.local.ornith-omlx.plist.template \
-  > ~/Library/LaunchAgents/com.local.ornith-omlx.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.local.ornith-omlx.plist
+  > ~/.config/local-ai/agents/com.local.ornith-omlx.plist
+local-ai up          # carrega este perfil junto com o resto da stack
+local-ai down
 ```
+
+`examples/local-ai-control/` instala o `local-ai` e carrega todos os plists da stack de referência.
+Se preferir subir este perfil na mão, `./ornith15-omlx start` faz o mesmo sem `launchd`, e o
+controlador mantém a posse do processo nos dois casos.
 
 ### Canário de contexto longo
 

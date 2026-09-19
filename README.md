@@ -89,6 +89,7 @@ Reference code for what the documents describe. Not required in order to follow 
 | [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Multi-user browser broker: persistent profiles, server-side lock, fenced takeover. 8 test files |
 | [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Model install bundle with pinned revision, hashes, and a verifier |
 | [`examples/ornith15-omlx/`](examples/ornith15-omlx/) | Second isolated profile: 9B with Lightning MTP, own port, verifier and wiring script |
+| [`examples/local-ai-control/`](examples/local-ai-control/) | Keeps the whole stack off at login and gives it a `local-ai up` / `local-ai down` switch |
 
 ---
 
@@ -106,9 +107,12 @@ Reference code for what the documents describe. Not required in order to follow 
 ## What you end up with
 
 An Open WebUI reachable from your phone at `https://chat.seudominio.com`, serving a local model over
-loopback, with its own login, configured context compaction, encrypted backup and autostart — plus a
-second hostname, `browser.seudominio.com`, protected by One-Time PIN, for browser automation with
-human takeover.
+loopback, with its own login, configured context compaction and encrypted backup — plus a second
+hostname, `browser.seudominio.com`, protected by One-Time PIN, for browser automation with human
+takeover.
+
+The stack does not start at login. One command brings it up, one takes it down, and until then it
+costs no memory: see [`examples/local-ai-control/`](examples/local-ai-control/).
 
 ---
 

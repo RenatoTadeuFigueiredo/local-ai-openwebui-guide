@@ -622,7 +622,7 @@ Use `cloudflared >= 2025.4.0` com `--token-file`.
 Arquivo implantado:
 
 ```text
-~/Library/LaunchAgents/com.local.cloudflared-openwebui.plist
+~/.config/local-ai/agents/com.local.cloudflared-openwebui.plist
 ```
 
 `ProgramArguments` implantado:
@@ -644,7 +644,7 @@ Arquivo implantado:
 </array>
 ```
 
-Use o caminho de `command -v cloudflared`; não presuma Homebrew ou arquitetura. O LaunchAgent inicia apenas após login. Não habilite login automático somente para isso.
+Use o caminho de `command -v cloudflared`; não presuma Homebrew ou arquitetura. Este LaunchAgent não inicia no login: ele é carregado sob demanda por `local-ai up --tunnel` (seção 13). Não habilite login automático somente para isso.
 
 Mantenha log em `info`; debug pode registrar headers e informações sensíveis.
 
@@ -662,23 +662,38 @@ A configuração remota contém somente essa regra e um catch-all `http_status:4
 
 ---
 
-## 13. Auto-start do Open WebUI, Tunnel e Qwen
+## 13. LaunchAgents: sob demanda, não no login
 
-A implantação ativa usa três LaunchAgents de usuário:
+A implantação de referência mantém seis LaunchAgents de usuário — Open WebUI, Tunnel, dois perfis de modelo, Docker Desktop e um servidor legado — e **nenhum deles inicia no login**. Eles ficam em
+
+```text
+~/.config/local-ai/agents/
+```
+
+em vez de `~/Library/LaunchAgents/`, o único diretório que o `launchd` varre quando o proprietário entra na sessão. Plist que não está lá não é carregado, então a stack não custa nada até ser pedida. O `launchd` continua dono de cada processo que recebe: `RunAtLoad`, `KeepAlive`, throttle, diretório de trabalho e redirecionamento de log funcionam exatamente como abaixo. Só o gatilho muda, de "login" para "`local-ai up`".
 
 | Label | Processo | Política |
 |---|---|---|
 | `com.local.openwebui` | Open WebUI | `RunAtLoad` + `KeepAlive` |
 | `com.local.cloudflared-openwebui` | Cloudflare Tunnel | `RunAtLoad` + `KeepAlive` |
-| `com.local.qwen-omlx` | Qwen/oMLX | `RunAtLoad`; o processo fica em foreground sob o `launchd` |
+| `com.local.qwen-omlx` | Qwen/oMLX | `RunAtLoad`; foreground sob o `launchd` |
+| `com.local.ornith-omlx` | Ornith/oMLX, porta `8086` | mesmo padrão do Qwen |
+| `com.local.docker-desktop-openwebui` | Docker Desktop | one-shot: abre o app e sai quando `docker info` responde |
+| `com.mlx-server` | mlx-lm legado na `8080` | `RunAtLoad` false: carrega ocioso, precisa de um empurrão explícito |
 
-Eles iniciam quando o proprietário faz login no macOS; não transformam o Mac em serviço disponível antes do login. Os três plists passaram por `plutil -lint`, e uma reinicialização controlada da sessão `launchd` provou recuperação conjunta seguida de uma completion pública. Não foi feito reboot físico do Mac.
+`examples/local-ai-control/` carrega os plists como `.plist.template` (com `__HOME__` em vez de um home fixo) e o comando `local-ai` que faz `bootstrap` e `bootout` deles.
 
-Arquivo do WebUI:
-
-```text
-~/Library/LaunchAgents/com.local.openwebui.plist
+```bash
+chmod +x examples/local-ai-control/local-ai
+ln -sfn "$PWD/examples/local-ai-control/local-ai" ~/.local/bin/local-ai
+mkdir -p ~/.config/local-ai/agents
+for f in examples/local-ai-control/agents/*.plist.template; do
+  sed "s|__HOME__|$HOME|g" "$f" > ~/.config/local-ai/agents/"$(basename "$f" .template)"
+done
+plutil -lint ~/.config/local-ai/agents/*.plist
 ```
+
+Arquivo do WebUI e estrutura essencial:
 
 Estrutura essencial:
 
@@ -710,16 +725,35 @@ Estrutura essencial:
 Substitua todos os placeholders. Valide antes de carregar:
 
 ```bash
-plutil -lint ~/Library/LaunchAgents/com.local.openwebui.plist
+plutil -lint ~/.config/local-ai/agents/com.local.openwebui.plist
 ```
 
-Use `launchctl bootstrap gui/$(id -u) ...`/`bootout` conforme a versão do macOS. Não use `sudo`: MLX/Metal e os arquivos privados pertencem ao usuário.
+O `local-ai` inicia uma unidade com `launchctl bootstrap gui/$(id -u) <plist>` e a para com `launchctl bootout gui/$(id -u)/<label>`. O `bootout` é o que torna o "desligado" real: o `KeepAlive` não ressuscita um job removido do domínio. Não use `sudo`: MLX/Metal e os arquivos privados pertencem ao usuário.
 
-O Qwen foi deliberadamente incluído no auto-start. O launcher `start-qwen-omlx.sh` mantém compatibilidade com o PID file do controlador existente, recusa substituir PID alheio e nunca altera o bind de `127.0.0.1:8084`.
+O Qwen está no conjunto padrão de start. O launcher `start-qwen-omlx.sh` mantém compatibilidade com o PID file do controlador existente, recusa substituir PID alheio e nunca altera o bind de `127.0.0.1:8084`.
 
-### 13.1 Ordem de startup
+### 13.1 Controle no dia a dia
 
-Os três LaunchAgents são independentes; não há garantia de que o Qwen já esteja pronto quando o WebUI abrir. Isso é aceitável: o WebUI e o Tunnel sobem sem o modelo, e a conexão local fica disponível assim que o Qwen termina de carregar. A validação deve aguardar os health checks antes de testar chat. Não crie loop infinito de restart nem passe segredos em argumentos.
+```bash
+local-ai up              # ornith (8086), qwen (8084), Open WebUI (3000)
+local-ai up --tunnel     # publica também chat.seudominio.com
+local-ai up --docker     # sobe também o Docker Desktop, para os containers opcionais
+local-ai up --all        # os três acima mais o servidor mlx-lm legado na 8080
+local-ai up --open       # abre o WebUI no navegador quando ele responde
+local-ai status          # unidade, estado no launchd, pid, porta, saúde, memória residente
+local-ai logs qwen       # acompanha uma unidade
+local-ai down            # para toda unidade gerenciada que estiver rodando
+local-ai down --docker   # encerra também o Docker Desktop
+local-ai restart --tunnel
+```
+
+As duas direções são idempotentes: `up` numa unidade saudável reporta `already up`, `down` numa parada reporta `nothing was running`. O `up` sai com código não-zero se uma unidade nunca fica saudável, nomeia qual e aponta para `local-ai logs <unit>`. Parar não perde nada — modelos são relidos do disco, o Open WebUI mantém `data/webui.db` e o Tunnel reconecta no próximo `up --tunnel`.
+
+O Docker Desktop é deliberadamente deixado rodando por um `down` puro: ele é compartilhado com outros projetos da mesma máquina, e encerrá-lo para os containers deles também.
+
+### 13.2 Ordem de startup
+
+As unidades são independentes, mas o `local-ai up` as inicia em ordem de dependência e aguarda o próprio sinal de saúde de cada uma antes de seguir: modelos primeiro, depois Open WebUI, depois o Tunnel. Medido na máquina de referência com page cache quente: 4 s para o Ornith, 5 s para o Qwen, 31 s para o Open WebUI, menos de 1 s para o Tunnel — cerca de 55 s para um start frio completo a partir de `down`. O WebUI e o Tunnel conseguem servir antes de um modelo terminar de carregar; o `up` espera mesmo assim, então um chat nunca encontra um engine meio carregado. Não crie loop infinito de restart nem passe segredos em argumentos.
 
 ---
 
@@ -972,7 +1006,9 @@ Para remover o acesso remoto sem apagar nada local:
 ### Operação
 
 - [x] os três LaunchAgents recuperaram os serviços numa reinicialização controlada da sessão `launchd`;
-- [ ] recuperação automática após reboot físico e novo login ainda não foi comprovada;
+- [x] a migração para carregamento sob demanda foi exercitada de ponta a ponta em 19/09/2026: o `down` liberou `3000`, `8084`, `8086` e `20241`, o `up` as trouxe de volta e um chat por `chat.seudominio.com` respondeu depois do ciclo;
+- [x] o "nada sobe no login" vale por construção — os plists estão fora de `~/Library/LaunchAgents`, o único diretório que o `launchd` varre;
+- [ ] reboot físico seguido de novo login ainda não foi reobservado após a mudança;
 - [ ] o teste negativo isolado do Tunnel ainda não foi repetido; o origin local é independente por construção e está saudável;
 - [x] a varredura de 25/08/2026 nos logs dos três LaunchAgents não encontrou os valores secretos implantados nem os marcadores dos prompts de teste;
 - [x] backup cifrado, descriptografia em diretório temporário e integridade SQLite foram testados;
@@ -1001,8 +1037,8 @@ Para remover o acesso remoto sem apagar nada local:
 10. publicar somente `chat.seudominio.com → 127.0.0.1:3000`;
 11. criar rate limit específico do login;
 12. validar HTTPS, login, signup negado e SSE público;
-13. criar LaunchAgents;
-14. instalar/iniciar Docker Desktop;
+13. escrever os LaunchAgents em `~/.config/local-ai/agents/` e instalar o `local-ai`;
+14. instalar o Docker Desktop e deixar o `local-ai up --docker` iniciá-lo;
 15. provisionar um Open Terminal por usuário aprovado;
 16. validar ACL, CSP e tool call do Qwen;
 17. configurar backup e monitoramento.

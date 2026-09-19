@@ -605,6 +605,10 @@ Com o LaunchAgent instalado:
 - `start`/`stop` recusam lifecycle paralelo para evitar dois supervisores;
 - o template não usa `KeepAlive`: um crash não reinicia automaticamente. Isso evita restart loop do modelo pesado; monitore o job e faça `kickstart` deliberado se quiser recuperação.
 
+Este bundle mantém o local clássico `~/Library/LaunchAgents/`, que inicia o perfil no login. Para
+mantê-lo desligado até ser chamado, ponha o plist em `~/.config/local-ai/agents/` e o controle por
+[`../local-ai-control/`](../local-ai-control/).
+
 Parar e remover o autostart, sem apagar o modelo:
 
 ```bash

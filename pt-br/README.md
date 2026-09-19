@@ -87,6 +87,7 @@ Código de referência do que os documentos descrevem. Não é necessário para 
 | [`examples/browser-hitl-poc/`](examples/browser-hitl-poc/) | Broker multiusuário de navegador: perfis persistentes, lock server-side, takeover fenced. 8 arquivos de teste |
 | [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Bundle de instalação do modelo, com revisão fixada, hashes e verificador |
 | [`examples/ornith15-omlx/`](examples/ornith15-omlx/) | Segundo perfil isolado: modelo 9B com Lightning MTP, porta, verificador e script de wiring próprios |
+| [`examples/local-ai-control/`](examples/local-ai-control/) | Mantém a stack desligada no login e dá a ela um interruptor `local-ai up` / `local-ai down` |
 
 ---
 
@@ -104,9 +105,12 @@ Código de referência do que os documentos descrevem. Não é necessário para 
 ## O que você vai ter no fim
 
 Um Open WebUI acessível pelo celular em `https://chat.seudominio.com`, servindo um modelo local por
-loopback, com login próprio, compactação de contexto configurada, backup cifrado e autostart —
-e um segundo hostname, `browser.seudominio.com`, protegido por One-Time PIN, para automação de
-navegador com takeover humano.
+loopback, com login próprio, compactação de contexto configurada e backup cifrado — e um segundo
+hostname, `browser.seudominio.com`, protegido por One-Time PIN, para automação de navegador com
+takeover humano.
+
+A stack não sobe no login. Um comando a liga, outro a desliga, e até lá ela não custa memória:
+veja [`examples/local-ai-control/`](examples/local-ai-control/).
 
 ---
 

@@ -148,13 +148,21 @@ allowlist, and fails closed if the sandbox, secrets or settings drift.
 `start` runs the verifier, launches through `sandbox-exec` and waits until the model is loaded before
 returning. The controller only owns processes it can prove belong to this profile.
 
-### Autostart
+### On demand, not at login
+
+The plist goes to `~/.config/local-ai/agents/` rather than `~/Library/LaunchAgents/`, so nothing is
+loaded when you log in — `local-ai up` decides:
 
 ```bash
 sed "s#__PROFILE_ROOT__#$PWD#g" com.local.ornith-omlx.plist.template \
-  > ~/Library/LaunchAgents/com.local.ornith-omlx.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.local.ornith-omlx.plist
+  > ~/.config/local-ai/agents/com.local.ornith-omlx.plist
+local-ai up          # bootstraps it alongside the rest of the stack
+local-ai down
 ```
+
+`examples/local-ai-control/` installs `local-ai` and carries every plist of the reference stack. If
+you would rather start this profile by hand, `./ornith15-omlx start` does the same job without
+`launchd`, and the controller keeps ownership in both cases.
 
 ### Long-context canary
 

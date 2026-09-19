@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.local.cloudflared-openwebui</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/cloudflared</string>
+    <string>tunnel</string>
+    <string>--config</string>
+    <string>__HOME__/.config/cloudflared-openwebui/config.yml</string>
+    <string>--no-autoupdate</string>
+    <string>--metrics</string>
+    <string>127.0.0.1:20241</string>
+    <string>--loglevel</string>
+    <string>info</string>
+    <string>run</string>
+    <string>--token-file</string>
+    <string>__HOME__/.config/cloudflared-openwebui/tunnel.token</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__HOME__/.config/cloudflared-openwebui</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>__HOME__/services/open-webui-mac/logs/cloudflared.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/services/open-webui-mac/logs/cloudflared.stderr.log</string>
+</dict>
+</plist>

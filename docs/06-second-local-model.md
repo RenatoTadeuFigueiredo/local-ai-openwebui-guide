@@ -66,7 +66,7 @@ cd examples/ornith15-omlx
 ./ornith15-omlx start                         # verifier, sandbox, wait for load
 ./context-canary.py                           # long-context retrieval evidence
 ./wire-open-webui.py                          # connection, model row, wildcard read grant
-launchctl kickstart -k gui/$(id -u)/com.local.openwebui
+launchctl kickstart -k gui/$(id -u)/com.local.openwebui   # needs the job loaded: `local-ai up` does it
 ```
 
 Then confirm the model appears and answers through the interface — a connection that was never
@@ -126,7 +126,8 @@ there is nothing to discover. Both profiles use the same shape with their own po
 
 - quality comparison against the 27B profile on the same prompts;
 - long-run stability and thermal behaviour under sustained decoding;
-- a decision on whether both profiles should autostart, or the smaller one on demand;
+- ~~a decision on whether both profiles should autostart, or the smaller one on demand~~ — settled on
+  demand for both: see [`examples/local-ai-control/`](../examples/local-ai-control/);
 - vision: the checkpoint ships vision tensors, the profile forces the text engine;
 - backup: the encrypted backup covers only the first profile. The second model is re-downloadable
   from a pinned revision, but its `state/` (API key, settings, per-model settings) is not backed up
