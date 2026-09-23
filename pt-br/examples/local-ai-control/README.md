@@ -72,7 +72,7 @@ local-ai logs <unit>
 
 | Comando | Efeito |
 |---|---|
-| `up` | Ornith (`8086`), Qwen (`8084`), Open WebUI (`3000`) |
+| `up` | Ornith (`8086`), Qwen (`8084`), Open WebUI (`3000`), servidor de decisão Jev (`8087`) |
 | `up --tunnel` | Soma o Túnel Cloudflare — `chat.seudominio.com` volta a responder |
 | `up --docker` | Soma o Docker Desktop, exigido pelos containers opcionais de terminal/Computer |
 | `up --legacy` | Soma o antigo servidor mlx-lm na `8080` |
@@ -101,6 +101,7 @@ parar em vez de declarar sucesso.
 | `tunnel` | `com.local.cloudflared-openwebui` | `20241` | `/ready` do túnel |
 | `docker` | `com.local.docker-desktop-openwebui` | — | `docker info` |
 | `legacy` | `com.mlx-server` | `8080` | `/v1/models` |
+| `jev` | `com.local.jev-v2-decision` | `8087` | `/health`, depois `Authorization: Bearer <state/api-key>` |
 
 As unidades de modelo conferem se o modelo *certo* está carregado, não só se a porta responde: um
 perfil que subiu com o engine pool vazio não é reportado como pronto.

@@ -72,11 +72,11 @@ local-ai logs <unit>
 
 | Command | Effect |
 |---|---|
-| `up` | Ornith (`8086`), Qwen (`8084`), Open WebUI (`3000`) |
+| `up` | Ornith (`8086`), Qwen (`8084`), Open WebUI (`3000`), Jev decision server (`8087`) |
 | `up --tunnel` | Adds the Cloudflare Tunnel — `chat.seudominio.com` answers again |
 | `up --docker` | Adds Docker Desktop, needed by the optional terminal/Computer containers |
 | `up --legacy` | Adds the old mlx-lm server on `8080` |
-| `up --all` | The three optional units above, together |
+| `up --all` | Adds the three optional units above, together |
 | `up --open` | Opens the WebUI in the browser once it answers |
 | `down` | Stops every managed unit that is running; leaves Docker Desktop alone |
 | `down --docker` | Also quits Docker Desktop |
@@ -101,6 +101,7 @@ claiming success.
 | `tunnel` | `com.local.cloudflared-openwebui` | `20241` | tunnel `/ready` |
 | `docker` | `com.local.docker-desktop-openwebui` | — | `docker info` |
 | `legacy` | `com.mlx-server` | `8080` | `/v1/models` |
+| `jev` | `com.local.jev-v2-decision` | `8087` | `/health`, then `Authorization: Bearer <state/api-key>` |
 
 The model units check that the *right* model is loaded, not just that a port answers: a profile that
 came up with an empty engine pool is not reported as ready.

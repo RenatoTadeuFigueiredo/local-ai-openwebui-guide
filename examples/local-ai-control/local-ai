@@ -34,6 +34,7 @@ unit_row() {
     tunnel)    echo "com.local.cloudflared-openwebui|tunnel|20241||" ;;
     docker)    echo "com.local.docker-desktop-openwebui|docker||" ;;
     legacy)    echo "com.mlx-server|legacy|8080||" ;;
+    jev)       echo "com.local.jev-v2-decision|http|8087|$HOME/models/jev-v2-decision|" ;;
     *) return 1 ;;
   esac
 }
@@ -110,6 +111,7 @@ log_path() {
     tunnel)    echo "$HOME/services/open-webui-mac/logs/cloudflared.stderr.log" ;;
     docker)    echo "$HOME/services/open-webui-mac/logs/docker-desktop.stderr.log" ;;
     legacy)    echo "$HOME/assistente-mac/logs/mlx-server.log" ;;
+    jev)       echo "$HOME/models/jev-v2-decision/logs/serve.stderr.log" ;;
   esac
 }
 
@@ -172,12 +174,13 @@ quit_docker() {
 }
 
 cmd_up() {
-  local units="ornith qwen openwebui" failed=""
+  local units="ornith qwen openwebui jev" failed=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --tunnel) units="$units tunnel" ;;
       --docker) units="docker $units" ;;
       --legacy) units="$units legacy" ;;
+      --jev)    : ;;                       # already in the default set
       --all)    units="docker $units tunnel legacy" ;;
       --open)   OPEN_WEBUI=1 ;;
       *) die "unknown flag: $1" ;;
@@ -239,11 +242,11 @@ down_unit() {
 }
 
 cmd_down() {
-  local units="openwebui tunnel qwen ornith legacy" with_docker="" failed="" seen=""
+  local units="openwebui jev tunnel qwen ornith legacy" with_docker="" failed="" seen=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --docker|--all) with_docker=1 ;;
-      --tunnel|--legacy|--open) : ;;
+      --tunnel|--legacy|--jev|--open) : ;;
       *) die "unknown flag: $1" ;;
     esac
     shift
@@ -272,7 +275,7 @@ cmd_down() {
 
 # -------------------------------------------------------------------- status
 cmd_status() {
-  local units="ornith qwen openwebui tunnel docker legacy" name label p port state lstate
+  local units="ornith qwen openwebui jev tunnel docker legacy" name label p port state lstate
   printf '%-10s %-8s %-7s %-6s %-8s %s\n' UNIT LAUNCHD PID PORT STATE MEM
   for name in $units; do
     label="$(label_of "$name")"
@@ -307,10 +310,10 @@ usage() {
 usage: local-ai <command> [flags]
 
   up [--tunnel] [--docker] [--legacy] [--all] [--open]
-        Start the stack. Default: ornith (8086), qwen (8084), openwebui (3000).
-        --tunnel adds the Cloudflare Tunnel, --docker starts Docker Desktop,
-        --legacy adds the mlx-lm server on 8080, --all adds all three,
-        --open opens the WebUI once it is ready.
+        Start the stack. Default: ornith (8086), qwen (8084), openwebui (3000)
+        and jev (8087, decision server). --tunnel adds the Cloudflare Tunnel,
+        --docker starts Docker Desktop, --legacy adds the mlx-lm server on 8080,
+        --all adds those three, --open opens the WebUI once it is ready.
 
   down [--docker]
         Stop every managed unit that is running. Docker Desktop keeps running
@@ -320,7 +323,7 @@ usage: local-ai <command> [flags]
   status              Table of unit, launchd state, pid, port, health, memory.
   logs <unit>         Follow one unit's log.
 
-Units: ornith qwen openwebui tunnel docker legacy
+Units: ornith qwen openwebui jev tunnel docker legacy
 EOF
 }
 

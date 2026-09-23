@@ -680,6 +680,7 @@ instead of `~/Library/LaunchAgents/`, the only directory `launchd` scans when th
 | `com.local.ornith-omlx` | Ornith/oMLX, port `8086` | same pattern as Qwen |
 | `com.local.docker-desktop-openwebui` | Docker Desktop | one-shot: opens the app and exits once `docker info` answers |
 | `com.mlx-server` | legacy mlx-lm on `8080` | `RunAtLoad` false: loads idle, needs an explicit nudge |
+| `com.local.jev-v2-decision` | Jev decision server on `8087` | not a chat model: a decision library wrapped in loopback HTTP, bearer token in `state/api-key` |
 
 `examples/local-ai-control/` carries the plists as `.plist.template` (with `__HOME__` instead of a hard-coded home) and the `local-ai` command that bootstraps and boots them out.
 
@@ -735,10 +736,10 @@ Qwen is in the default start set. The `start-qwen-omlx.sh` launcher keeps compat
 ### 13.1 Day-to-day control
 
 ```bash
-local-ai up              # ornith (8086), qwen (8084), Open WebUI (3000)
+local-ai up              # ornith (8086), qwen (8084), Open WebUI (3000), jev (8087)
 local-ai up --tunnel     # also publishes chat.seudominio.com
 local-ai up --docker     # also starts Docker Desktop, for the optional containers
-local-ai up --all        # the three above plus the legacy mlx-lm server on 8080
+local-ai up --all        # those four plus the legacy mlx-lm server on 8080
 local-ai up --open       # opens the WebUI in the browser once it answers
 local-ai status          # unit, launchd state, pid, port, health, resident memory
 local-ai logs qwen       # follow one unit
@@ -753,7 +754,7 @@ Docker Desktop is deliberately left running by a bare `down`: it is shared with 
 
 ### 13.2 Startup order
 
-The units are independent, but `local-ai up` starts them in dependency order and waits for each unit's own health signal before moving on: models first, then Open WebUI, then the Tunnel. Measured on the reference machine with warm page cache: 4 s for Ornith, 5 s for Qwen, 31 s for Open WebUI, under 1 s for the Tunnel — about 55 s for a full cold start from `down`. The WebUI and the Tunnel can serve before a model finishes loading; `up` waits anyway, so a chat never meets a half-loaded engine. Do not create an infinite restart loop nor pass secrets in arguments.
+The units are independent, but `local-ai up` starts them in dependency order and waits for each unit's own health signal before moving on: models first, then Open WebUI and the decision server, then the Tunnel. Measured on the reference machine with warm page cache: 4 s for Ornith, 5 s for Qwen, 31 s for Open WebUI, 2 s for the decision server, under 1 s for the Tunnel — about 55 s for a full cold start from `down`. The WebUI and the Tunnel can serve before a model finishes loading; `up` waits anyway, so a chat never meets a half-loaded engine. Do not create an infinite restart loop nor pass secrets in arguments.
 
 ---
 

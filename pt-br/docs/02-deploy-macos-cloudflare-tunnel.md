@@ -680,6 +680,7 @@ em vez de `~/Library/LaunchAgents/`, o único diretório que o `launchd` varre q
 | `com.local.ornith-omlx` | Ornith/oMLX, porta `8086` | mesmo padrão do Qwen |
 | `com.local.docker-desktop-openwebui` | Docker Desktop | one-shot: abre o app e sai quando `docker info` responde |
 | `com.mlx-server` | mlx-lm legado na `8080` | `RunAtLoad` false: carrega ocioso, precisa de um empurrão explícito |
+| `com.local.jev-v2-decision` | servidor de decisão Jev na `8087` | não é modelo de chat: biblioteca de decisão embrulhada em HTTP loopback, token em `state/api-key` |
 
 `examples/local-ai-control/` carrega os plists como `.plist.template` (com `__HOME__` em vez de um home fixo) e o comando `local-ai` que faz `bootstrap` e `bootout` deles.
 
@@ -735,10 +736,10 @@ O Qwen está no conjunto padrão de start. O launcher `start-qwen-omlx.sh` mant�
 ### 13.1 Controle no dia a dia
 
 ```bash
-local-ai up              # ornith (8086), qwen (8084), Open WebUI (3000)
+local-ai up              # ornith (8086), qwen (8084), Open WebUI (3000), jev (8087)
 local-ai up --tunnel     # publica também chat.seudominio.com
 local-ai up --docker     # sobe também o Docker Desktop, para os containers opcionais
-local-ai up --all        # os três acima mais o servidor mlx-lm legado na 8080
+local-ai up --all        # os quatro acima mais o servidor mlx-lm legado na 8080
 local-ai up --open       # abre o WebUI no navegador quando ele responde
 local-ai status          # unidade, estado no launchd, pid, porta, saúde, memória residente
 local-ai logs qwen       # acompanha uma unidade
@@ -753,7 +754,7 @@ O Docker Desktop é deliberadamente deixado rodando por um `down` puro: ele é c
 
 ### 13.2 Ordem de startup
 
-As unidades são independentes, mas o `local-ai up` as inicia em ordem de dependência e aguarda o próprio sinal de saúde de cada uma antes de seguir: modelos primeiro, depois Open WebUI, depois o Tunnel. Medido na máquina de referência com page cache quente: 4 s para o Ornith, 5 s para o Qwen, 31 s para o Open WebUI, menos de 1 s para o Tunnel — cerca de 55 s para um start frio completo a partir de `down`. O WebUI e o Tunnel conseguem servir antes de um modelo terminar de carregar; o `up` espera mesmo assim, então um chat nunca encontra um engine meio carregado. Não crie loop infinito de restart nem passe segredos em argumentos.
+As unidades são independentes, mas o `local-ai up` as inicia em ordem de dependência e aguarda o próprio sinal de saúde de cada uma antes de seguir: modelos primeiro, depois Open WebUI e o servidor de decisão, depois o Tunnel. Medido na máquina de referência com page cache quente: 4 s para o Ornith, 5 s para o Qwen, 31 s para o Open WebUI, 2 s para o servidor de decisão, menos de 1 s para o Tunnel — cerca de 55 s para um start frio completo a partir de `down`. O WebUI e o Tunnel conseguem servir antes de um modelo terminar de carregar; o `up` espera mesmo assim, então um chat nunca encontra um engine meio carregado. Não crie loop infinito de restart nem passe segredos em argumentos.
 
 ---
 
