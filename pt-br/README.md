@@ -60,6 +60,7 @@ Leia na ordem. 00 e 02 são o caminho; o resto é contexto ou opcional.
 | 04 | [Browser HITL multiusuário](docs/04-browser-hitl-multi-user-poc.md) | Automação de sites com login humano e perfis isolados |
 | 05 | [Qwen3.8 derivado do oficial — clean-room](docs/05-cleanroom-install.md) | Instalação reproduzível, sem requantizar |
 | 06 | [Adicionar um segundo modelo local](docs/06-second-local-model.md) | Segundo perfil isolado ao lado do primeiro, sem tocá-lo |
+| 07 | [Benchmark: cache de prefixo, KV quantizado, ANE prefill](docs/07-benchmark-prefill-kv-ane.md) | Campanha de prontidão para produção do modelo 27B — mecânica do cache medida, knobs testados um a um, veredito com números |
 
 **Comece pelo 00.** Ele fixa a arquitetura local e marca o ramo com VPS como opcional.
 

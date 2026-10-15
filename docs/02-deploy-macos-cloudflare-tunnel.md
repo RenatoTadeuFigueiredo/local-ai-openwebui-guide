@@ -392,7 +392,7 @@ curl --config "$TEST_DIR/qwen.curlrc"
 
 It must list `qwen38-omlx` with `max_model_len=262144`. The checkpoint and the tokenizer stay native at `262144`; `state/settings.json` and `state/model_settings.json` must agree with each other on the allowed effective profile (`262144` active or `32768` rollback), and `qwen-omlx verify --quick` fails if that set becomes inconsistent. The safe facade turns `8192` into a real ceiling — not just a default —, writes the reduced value into the request object before starting any deferred response and guarantees `prompt + output <= 262144` in completion and chat completion. Speculative MTP also reduces depth near the limit and checks the real offsets of the target caches and of the MTP head, preventing an internal forward from advancing beyond the window even when the speculative tokens would not be emitted.
 
-The persistent prefix cache uses up to `40GB` in `~/models/qwen38-omlx/state/cache`. This does not pre-allocate 40 GB of RAM nor make the 256K prefill instant; it is just the SSD ceiling for prefix reuse. The larger total window increases memory and latency as the context actually filled grows.
+The persistent prefix cache uses up to `64GB` in `~/models/qwen38-omlx/state/cache`, with a `64GB` hot RAM tier on top. This does not pre-allocate 64 GB of RAM nor make the 256K prefill instant; it is just the SSD ceiling for prefix reuse. The larger total window increases memory and latency as the context actually filled grows.
 
 ### 8.3 Register in Open WebUI
 
@@ -854,7 +854,7 @@ The normative rule remains: do not open any inbound port on the router.
 - concurrency 1;
 - native/effective/announced window at `262144` tokens and maximum output at `8192`;
 - `safe` memory guard stays enabled; do not raise `iogpu.wired_limit_mb` just to chase context without measuring real pressure;
-- SSD cache limited to `40GB` and no reserved hot cache;
+- SSD cache limited to `64GB` with a `64GB` hot RAM tier (raised from the earlier `40GB`/no-hot-cache profile after the 2026-09-23 benchmark campaign — the 40 GB ceiling was measured full, forcing snapshot evictions; see doc 07);
 - `qwen-stable` preserved;
 - do not publish the API on the Tunnel.
 
@@ -931,7 +931,7 @@ If deep prompts cause memory pressure or unacceptable operational latency, rever
 6. restart `com.local.qwen-omlx` first, then `com.local.openwebui`;
 7. require `/v1/models:max_model_len=32768`, healthy health and a short chat before ending the rollback.
 
-The SSD cache may stay at `40GB`; reducing it back to `20GB` is optional and does not require deleting files manually. Do not use `rm -rf` on the cache during rollback; the manager applies the ceiling and compatible cleanup.
+The SSD cache may stay at `64GB` (current profile); reducing it back to `20GB` is optional and does not require deleting files manually. Do not use `rm -rf` on the cache during rollback; the manager applies the ceiling and compatible cleanup.
 
 To remove remote access without deleting anything locally:
 
