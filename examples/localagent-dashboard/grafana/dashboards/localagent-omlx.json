@@ -17,12 +17,17 @@
     ],
     "schemaVersion": 42,
     "cursorSync": "Off",
+    "links": [],
+    "liveNow": false,
+    "preload": false,
     "editable": true,
     "elements": {
       "p1": {
         "kind": "Panel",
         "spec": {
+          "id": 1,
           "title": "Facade",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -96,7 +101,9 @@
       "p2": {
         "kind": "Panel",
         "spec": {
+          "id": 2,
           "title": "Modelos carregados",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -140,7 +147,9 @@
       "p3": {
         "kind": "Panel",
         "spec": {
+          "id": 3,
           "title": "Mem\u00f3ria do engine",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -187,7 +196,9 @@
       "p4": {
         "kind": "Panel",
         "spec": {
+          "id": 4,
           "title": "Uso do teto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "gauge",
@@ -252,7 +263,9 @@
       "p5": {
         "kind": "Panel",
         "spec": {
+          "id": 5,
           "title": "Decode agora \u2014 qwen38",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -296,7 +309,9 @@
       "p6": {
         "kind": "Panel",
         "spec": {
+          "id": 6,
           "title": "Decode agora \u2014 sage",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -340,7 +355,9 @@
       "p7": {
         "kind": "Panel",
         "spec": {
+          "id": 7,
           "title": "Erros (janela)",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
@@ -385,7 +402,9 @@
       "p8": {
         "kind": "Panel",
         "spec": {
+          "id": 8,
           "title": "Decode tok/s por modelo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -430,7 +449,9 @@
       "p9": {
         "kind": "Panel",
         "spec": {
+          "id": 9,
           "title": "Prefill tok/s por modelo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -475,7 +496,9 @@
       "p10": {
         "kind": "Panel",
         "spec": {
+          "id": 10,
           "title": "TTFT m\u00e9dio por modelo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -522,7 +545,9 @@
       "p11": {
         "kind": "Panel",
         "spec": {
+          "id": 11,
           "title": "Aceita\u00e7\u00e3o de drafts",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -587,7 +612,9 @@
       "p12": {
         "kind": "Panel",
         "spec": {
+          "id": 12,
           "title": "Drafts e aceitos por minuto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -650,7 +677,9 @@
       "p13": {
         "kind": "Panel",
         "spec": {
+          "id": 13,
           "title": "Parks e re-entradas",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -714,7 +743,9 @@
       "p14": {
         "kind": "Panel",
         "spec": {
+          "id": 14,
           "title": "Raz\u00e3o de cache hit",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -779,7 +810,9 @@
       "p15": {
         "kind": "Panel",
         "spec": {
+          "id": 15,
           "title": "Restores de prefix cache",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -823,7 +856,9 @@
       "p16": {
         "kind": "Panel",
         "spec": {
+          "id": 16,
           "title": "Tokens de cache por minuto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -886,7 +921,9 @@
       "p17": {
         "kind": "Panel",
         "spec": {
+          "id": 17,
           "title": "Requisi\u00e7\u00f5es por minuto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -930,7 +967,9 @@
       "p18": {
         "kind": "Panel",
         "spec": {
+          "id": 18,
           "title": "Tokens de prompt por minuto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -974,7 +1013,9 @@
       "p19": {
         "kind": "Panel",
         "spec": {
+          "id": 19,
           "title": "Tokens gerados por minuto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -1018,7 +1059,9 @@
       "p20": {
         "kind": "Panel",
         "spec": {
+          "id": 20,
           "title": "Erros por tipo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -1063,7 +1106,9 @@
       "p21": {
         "kind": "Panel",
         "spec": {
+          "id": 21,
           "title": "Fim por motivo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -1107,7 +1152,9 @@
       "p22": {
         "kind": "Panel",
         "spec": {
+          "id": 22,
           "title": "RSS do processo",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -1153,7 +1200,9 @@
       "p23": {
         "kind": "Panel",
         "spec": {
+          "id": 23,
           "title": "Mem\u00f3ria do engine vs teto",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
@@ -1218,7 +1267,9 @@
       "p24": {
         "kind": "Panel",
         "spec": {
+          "id": 24,
           "title": "Requisi\u00e7\u00f5es por hora (48 h)",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "barchart",
@@ -1263,7 +1314,9 @@
       "p25": {
         "kind": "Panel",
         "spec": {
+          "id": 25,
           "title": "Tokens gerados por hora (48 h)",
+          "links": [],
           "vizConfig": {
             "kind": "VizConfig",
             "group": "barchart",
@@ -1725,10 +1778,14 @@
           "refresh": "onDashboardLoad",
           "multi": true,
           "includeAll": true,
-          "allValue": "$__all",
+          "allValue": ".*",
           "current": {
-            "text": "All",
-            "value": "$__all"
+            "text": [
+              "All"
+            ],
+            "value": [
+              "$__all"
+            ]
           },
           "datasource": {
             "type": "prometheus",

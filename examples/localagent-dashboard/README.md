@@ -33,7 +33,11 @@ Two details are easy to get wrong when hand-editing the file:
 - queries are `kind: "DataQuery"` with `group: "prometheus"` and the datasource
   in `datasource: {name: "prometheus-local"}` — the string is the **datasource
   uid**;
-- `annotations: []` is rejected by the CUE schema; leave the key out.
+- `annotations: []` is rejected by the CUE schema; leave the key out, while
+  `links: []` is required on the dashboard *and* on every panel — a missing
+  `links` makes the frontend die with `ve.links is not iterable`;
+- panels carry a numeric `id`, and the `All` value of a filter variable must be
+  `.*`; `$__all` leaves every `model=~"$model"` panel on "No data".
 
 `dashboardNewLayouts` is on by default in Grafana 13, so the file renders as
 tabs. The legacy `/api/dashboards/uid/...` view flattens the tabs into rows,
