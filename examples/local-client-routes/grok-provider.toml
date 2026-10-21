@@ -1,0 +1,45 @@
+# Copy into the matching client config. Values point at the local facade only.
+
+# --- Grok Build: ~/.grok/config.toml (or the active GROK_HOME) -----------------
+[model_providers.local-omlx]
+kind = "openai_compatible"
+display_name = "local oMLX"
+base_url = "http://127.0.0.1:8084/v1"
+enabled = true
+api_key = "<state/api-key>"
+api_backend = "chat_completions"
+auth_scheme = "bearer"
+catalog_enabled = false
+capability_mode = "manual"
+request_timeout_secs = 600
+context_window = 262144
+max_completion_tokens = 8192
+
+[model_providers.local-omlx.capabilities]
+chat_completions = true
+responses = false
+
+[model."local/sage-a15-omlx"]
+model = "sage-a15-omlx"
+model_provider = "local-omlx"
+name = "local/sage-a15-omlx"
+description = "Sage A1.5 oQ4e, vision tower, MTP depth 3, thinking budget 2048."
+api_key = "<state/api-key>"
+api_backend = "chat_completions"
+temperature = 1.0
+top_p = 0.95
+supports_tools = true
+supports_image_input = true
+supports_reasoning_effort = false
+
+[model."local/qwen38-omlx"]
+model = "qwen38-omlx"
+model_provider = "local-omlx"
+name = "local/qwen38-omlx"
+description = "Pinned default of the local profile. oQ4e + Lightning MTP, 262144 context, text only."
+api_key = "<state/api-key>"
+api_backend = "chat_completions"
+temperature = 1.0
+top_p = 0.95
+supports_tools = true
+supports_reasoning_effort = false

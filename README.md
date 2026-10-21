@@ -65,6 +65,7 @@ Read in order. 00 and 02 are the path; everything else is context or optional.
 | 07 | [Benchmark: prefix cache, KV quantization, ANE prefill](docs/07-benchmark-prefill-kv-ane.md) | Production-readiness campaign for the 27B model — cache mechanics measured, knobs tested one at a time, verdict with numbers |
 | 08 | [Second model inside the same profile](docs/08-secondary-model-same-profile.md) | oMLX 0.7.2 upgrade plus a sibling alias, with measurements and upstream MTP API drift |
 | 09 | [LocalAgent: local Grafana for any profile](docs/09-localagent-monitoring.md) | Install, ports and verification for the tabbed local dashboard — one stack per profile, no tunnel |
+| 10 | [Routing local clients](docs/10-local-clients.md) | Grok Build and dsh route snippets, capabilities, timeouts and failure modes |
 
 **Start with 00.** It sets the local architecture and marks the VPS branch as optional.
 
