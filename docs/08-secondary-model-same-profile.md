@@ -143,7 +143,25 @@ The validator was widened, not loosened:
 
 `verify-model.py` ends green in full cryptographic mode, including the new pins.
 
-## 6. Limits
+## 6. Local dashboard
+
+[`examples/localagent-dashboard/`](../../examples/localagent-dashboard/) is a local-only Grafana
+stack for this profile: a host exporter scrapes the facade, the completion log and the usage
+database, Prometheus keeps 30 days, and Grafana provisions the folder `LocalAgent` with the
+dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`.
+
+```bash
+./monitoring/up.sh     # after `qwen-omlx start`
+./monitoring/down.sh
+```
+
+Nothing starts at login and every port binds `127.0.0.1` (Grafana 3300, Prometheus 9090, exporter
+8791). The panels follow the campaign metric families — decode and prefill tok/s per model, TTFT,
+MTP accept ratio, parks against re-entries, cache hit ratio, memory against the ceiling, errors by
+kind, finish reasons — so a regression shows up the same way it does in the benchmark reports.
+`handoff` errors must stay at zero; they are the seam that broke during the 0.7.2 adaptation.
+
+## 7. Limits
 
 - **The 256K context is unvalidated for this conversion.** The author of the quant says so; only
   short and 4–6K prompts were exercised here.
@@ -172,7 +190,7 @@ definitions, which needs ~45 GB and was refused. Measured fix:
 completes at 78 tok/s. The default model is subject to the timeout too, so
 switching back after 10 minutes costs one load (~20 s).
 
-## 7. Rollback
+## 8. Rollback
 
 ```bash
 cd ~/models/qwen38-omlx

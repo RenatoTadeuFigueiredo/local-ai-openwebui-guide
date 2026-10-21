@@ -143,7 +143,26 @@ O validador foi ampliado, não afrouxado:
 
 `verify-model.py` termina verde em modo criptográfico completo, incluindo os novos pins.
 
-## 6. Limites
+## 6. Dashboard local
+
+[`examples/localagent-dashboard/`](../../examples/localagent-dashboard/) é uma stack Grafana
+exclusivamente local para este perfil: um exporter no host lê a fachada, o log de conclusão e o
+banco de uso; o Prometheus guarda 30 dias; e o Grafana provisiona a pasta `LocalAgent` com o
+dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`.
+
+```bash
+./monitoring/up.sh     # depois de `qwen-omlx start`
+./monitoring/down.sh
+```
+
+Nada sobe no login e todas as portas escutam em `127.0.0.1` (Grafana 3300, Prometheus 9090,
+exporter 8791). Os painéis seguem as famílias de métricas da campanha — tok/s de decode e prefill
+por modelo, TTFT, razão de aceitação de MTP, parks contra re-entradas, razão de cache hit, memória
+contra o teto, erros por tipo e motivos de fim — para que uma regressão apareça do mesmo jeito que
+aparece nos relatórios de benchmark. Erros de `handoff` precisam ficar em zero; é a emenda que
+quebrou na adaptação ao 0.7.2.
+
+## 7. Limites
 
 - **O contexto de 256K não foi validado nesta conversão.** O autor do quant avisa; aqui só foram
   exercitados prompts curtos e de 4–6K.
@@ -172,7 +191,7 @@ O `prefill_memory_guard` continua ligado; o validador agora exige tier
 completar a 78 tok/s. O modelo padrão também está sujeito ao timeout, então voltar
 depois de 10 minutos custa um carregamento (~20 s).
 
-## 7. Rollback
+## 8. Rollback
 
 ```bash
 cd ~/models/qwen38-omlx
