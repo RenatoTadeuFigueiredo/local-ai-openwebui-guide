@@ -73,7 +73,7 @@ Honestidade importa mais que marketing:
 
 | | |
 |---|---|
-| **Executado e validado** | 02 (implantação principal, 256K, guards, backup cifrado), 04 (POC local e publicação com OTP), 06 (segundo perfil, ponta a ponta) |
+| **Executado e validado** | 02 (implantação principal, 256K, guards, backup cifrado), 04 (POC local e publicação com OTP), 06 (segundo perfil, ponta a ponta), 08 (alias secundário no mesmo perfil), 09 (dashboard instalado e renderizado), 10 (os dois clientes responderam pela fachada local) |
 | **Não executado** | 03 (runbook de VPS) |
 | **Estruturalmente validado, sem medição** | 05 (bundle e verificadores exercitados em perfil sintético; falta a instalação real) |
 | **Pendências conhecidas** | reboot físico pós-login, cópia de disaster recovery externa, confirmação de roteador, alertas operacionais, E2E móvel de baixo risco |
@@ -92,14 +92,33 @@ Código de referência do que os documentos descrevem. Não é necessário para 
 | [`examples/qwen38-official-omlx/`](examples/qwen38-official-omlx/) | Bundle de instalação do modelo, com revisão fixada, hashes e verificador |
 | [`examples/ornith15-omlx/`](examples/ornith15-omlx/) | Segundo perfil isolado: modelo 9B com Lightning MTP, porta, verificador e script de wiring próprios |
 | [`examples/local-ai-control/`](examples/local-ai-control/) | Mantém a stack desligada no login e dá a ela um interruptor `local-ai up` / `local-ai down` |
+| [`examples/localagent-dashboard/`](examples/localagent-dashboard/) | Stack Grafana local por perfil: exporter, Prometheus e dashboard em abas, só em loopback |
+| [`examples/local-client-routes/`](examples/local-client-routes/) | Trechos de provedor que apontam o Grok Build e o dsh para a fachada local |
 
 ---
+
+## Memória, por modelo
+
+Tamanho residente medido dos dois checkpoints do perfil deste guia. Ambos são quantização mista de
+4 bits; o que muda é o tamanho.
+
+| Modelo | Residente | Cabe num Mac de 24 GB? | O que esperar ali |
+|---|---|---|---|
+| `qwen38-omlx` 27B | 15,7 GiB | Sim, ~2 GB de sobra | ~8–12 tok/s de decode; para agentes, contexto curto |
+| `sage-a15-omlx` 35B-A3B | 20,3 GiB | Só com `sysctl iogpu.wired_limit_mb=21500` e swap | ~35–45 tok/s em contexto curto, ~15–25 em longo; conversa e visão, não como agente |
+
+Os números do Sage não são erro de digitação: é um modelo mixture-of-experts com 3B de parâmetros
+ativos por token, então decodifica mais rápido que o 27B denso e ao custo de mais memória residente.
+Os números de 24 GB são extrapolados da execução no M3 Max, não medidos naquele hardware. Veja a
+[doc 08](docs/08-secondary-model-same-profile.md) para o modelo e a
+[doc 09](docs/09-localagent-monitoring.md) para o dashboard.
 
 ## Requisitos
 
 | | |
 |---|---|
 | Hardware | Apple Silicon. O caso medido usa M3 Max 40 núcleos / 128 GB |
+| Memória | 24 GB roda **um** modelo por vez, com concessões; 48 GB é confortável; o perfil de dois modelos deste guia assume 128 GB |
 | macOS | 13 ou superior |
 | Conta | Cloudflare com um domínio próprio |
 | Conhecimento | Terminal, arquivos de configuração, noções de rede |
