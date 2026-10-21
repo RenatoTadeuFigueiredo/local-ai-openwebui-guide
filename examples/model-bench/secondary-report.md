@@ -51,9 +51,11 @@ So determinism is **not established** for this model, unlike the pinned one.
 3. **Prefill is ~1 060 tok/s at 19K**, roughly 7× the pinned 27B model's 150 tok/s
    — the 1.8 B active-parameter budget shows up exactly where expected.
 4. **Coexistence has a memory cost.** With both models resident the dynamic
-   ceiling drops to ~45 GB and the prefill guard rejected one 5.9K prompt at
-   40.89 GB required vs 40.12 GB allowed. It is intermittent, but it is the
-   realistic limit of running two models at once.
+   ceiling drops and the prefill guard rejects mid-size prompts. An interactive
+   agent client made this deterministic: its ~27 K-token system prompt needed
+   ~45 GB and returned 400 under the `safe` tier. Fixed by raising the tier to
+   `balanced` (ceiling 45 → ~61 GB) and enabling a 600 s idle unload, which
+   frees the idle model instead of pinning 17 GB. The guard stays on.
 
 ## Verdict
 

@@ -145,6 +145,22 @@ The validator was widened, not loosened:
   running a long prefill at once is the risky corner.
 - **Community conversion.** The pinned model keeps production status; Sage is opt-in.
 
+### Coexistence guard tuning
+
+Two resident models plus an agent-sized system prompt do not fit the `safe`
+tier. The Grok Build client sends ~27 K tokens of system prompt and tool
+definitions, which needs ~45 GB and was refused. Measured fix:
+
+| Setting | Before | After | Why |
+|---|---|---|---|
+| `memory.memory_guard_tier` | `safe` | `balanced` | ceiling 45 → ~61 GB, enough for a 27 K prompt |
+| `idle_timeout.idle_timeout_seconds` | `null` | `600` | an unused model unloads instead of pinning 17 GB |
+
+`prefill_memory_guard` stays on; the validator now pins the tier to
+`safe`/`balanced` and the idle timeout to 120–3600 s. The same 27 K prompt then
+completes at 78 tok/s. The default model is subject to the timeout too, so
+switching back after 10 minutes costs one load (~20 s).
+
 ## 7. Rollback
 
 ```bash

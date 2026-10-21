@@ -145,6 +145,22 @@ O validador foi ampliado, não afrouxado:
   os dois e rodar um prefill longo ao mesmo tempo é o canto arriscado.
 - **Conversão comunitária.** O modelo fixado mantém o status de produção; Sage é opt-in.
 
+### Ajuste da guarda na coexistência
+
+Dois modelos residentes mais um system prompt de tamanho de agente não cabem no
+tier `safe`. O cliente Grok Build envia ~27 K tokens de system prompt e definições
+de ferramenta, o que exige ~45 GB e era recusado. Correção medida:
+
+| Ajuste | Antes | Depois | Motivo |
+|---|---|---|---|
+| `memory.memory_guard_tier` | `safe` | `balanced` | teto 45 → ~61 GB, suficiente para 27 K |
+| `idle_timeout.idle_timeout_seconds` | `null` | `600` | modelo sem uso descarrega em vez de segurar 17 GB |
+
+O `prefill_memory_guard` continua ligado; o validador agora exige tier
+`safe`/`balanced` e timeout entre 120 e 3600 s. O mesmo prompt de 27 K passa a
+completar a 78 tok/s. O modelo padrão também está sujeito ao timeout, então voltar
+depois de 10 minutos custa um carregamento (~20 s).
+
 ## 7. Rollback
 
 ```bash

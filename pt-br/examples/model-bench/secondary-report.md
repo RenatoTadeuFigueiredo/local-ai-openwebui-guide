@@ -53,9 +53,11 @@ ao contrário do modelo fixado.
 3. **Prefill fica em ~1 060 tok/s a 19K**, cerca de 7× os 150 tok/s do modelo 27B
    fixado — o orçamento de 1,8 B parâmetros ativos aparece exatamente onde se espera.
 4. **A coexistência tem custo de memória.** Com os dois modelos residentes o teto
-   dinâmico cai para ~45 GB e a guarda de prefill rejeitou um prompt de 5,9K
-   exigindo 40,89 GB contra 40,12 GB permitidos. É intermitente, mas é o limite
-   real de rodar dois modelos ao mesmo tempo.
+   dinâmico cai e a guarda de prefill rejeita prompts de tamanho médio. Um cliente
+   de agente interativo tornou isso determinístico: o system prompt de ~27 K
+   tokens exigiu ~45 GB e devolveu 400 no tier `safe`. Corrigido subindo o tier
+   para `balanced` (teto 45 → ~61 GB) e ligando idle unload de 600 s, que libera
+   o modelo ocioso em vez de segurar 17 GB. A guarda continua ligada.
 
 ## Veredito
 
