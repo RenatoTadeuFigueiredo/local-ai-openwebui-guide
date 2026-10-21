@@ -65,6 +65,17 @@ The fix is a passthrough on each guard, plus honouring `depth` where the upstrea
 (`depth=0` is the deterministic copy path, and its drafts are installed by the caller afterwards, so
 the post-condition check skips that case).
 
+The handoff seams need the passthrough to carry call *style*, not just values: `0.7.2` calls
+`_feed_next_main_to_standard(..., retain_head=True)` by keyword, and a guard declared as
+`(gen_batch, state)` turns that into `TypeError` on every park. Relay `*args, **kwargs` verbatim
+and forward both forms to the pinned helper.
+
+The Boolean outcome is also not the same thing as success. Upstream returns `False` before any
+forward is taken — an absent main token, or a queue that has not drained for the late join — and
+the caller answers with reconcile or a retry. Only an exception is a handoff failure, so the
+guard passes `False` through instead of escalating it. `verify-model.py` pins both halves: neither
+outcome may be rewritten and an exception must surface as a violation.
+
 ## 3. Adding the alias
 
 ```bash

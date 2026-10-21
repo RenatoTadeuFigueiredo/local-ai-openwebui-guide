@@ -65,6 +65,17 @@ A correção é passthrough em cada guarda, mais honrar `depth` onde o chamador 
 (`depth=0` é o caminho determinístico de cópia, e os drafts são instalados pelo chamador depois — por
 isso a checagem de pós-condição pula esse caso).
 
+Nas emendas de handoff o passthrough precisa carregar o *estilo* da chamada, não só o valor: o `0.7.2`
+chama `_feed_next_main_to_standard(..., retain_head=True)` por keyword, e uma guarda declarada como
+`(gen_batch, state)` transforma isso em `TypeError` a cada park. Repasse `*args, **kwargs` literalmente
+e encaminhe as duas formas para o helper pinado.
+
+O booleano de retorno também não é sinônimo de sucesso. O upstream devolve `False` antes de qualquer
+forward — token principal ausente, ou fila que ainda não drenou para o late join — e o chamador
+responde com reconcile ou nova tentativa. Só exceção é falha de handoff, então a guarda repassa o
+`False` em vez de escalá-lo. O `verify-model.py` fixa as duas metades: nenhum dos dois resultados pode
+ser reescrito e uma exceção precisa virar violação.
+
 ## 3. Inclusão do alias
 
 ```bash

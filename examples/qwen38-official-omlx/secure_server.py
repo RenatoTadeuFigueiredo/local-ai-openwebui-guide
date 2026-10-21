@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal immutable API facade for the isolated official-derived Qwen profile."""
+"""Minimal immutable API facade for the isolated oMLX inference experiment."""
 from __future__ import annotations
 
 import logging
@@ -48,7 +48,7 @@ class _RequestOutputBudget:
 
 
 _REQUEST_OUTPUT_BUDGET: ContextVar[_RequestOutputBudget | None] = ContextVar(
-    "qwen38_official_request_output_budget", default=None
+    "qwen_omlx_request_output_budget", default=None
 )
 
 
@@ -342,23 +342,37 @@ def _install_mtp_position_guard(
     def guarded_mtp_batch_next(gen_batch: Any, state: Any) -> Any:
         return _abort_recoverable_fallback(original_mtp_batch_next, gen_batch, state)
 
-    def _require_mtp_handoff(call: Any, *args: Any) -> bool:
+    def _require_mtp_handoff(call: Any, *args: Any, **kwargs: Any) -> bool:
+        # False is a documented, safe upstream outcome: an absent main token
+        # (park/feed) or a not-yet-drained queue (late join, where the caller
+        # reconciles instead). Only an exception is a handoff failure.
         try:
-            handed_off = call(*args)
+            return call(*args, **kwargs)
         except Exception as exc:
             raise _MtpSafetyViolation("MTP standard handoff raised") from exc
-        if handed_off is not True:
-            raise _MtpSafetyViolation("MTP standard handoff failed")
-        return True
 
-    def guarded_feed_standard(gen_batch: Any, state: Any) -> bool:
-        return _require_mtp_handoff(original_feed_standard, gen_batch, state)
+    def guarded_feed_standard(
+        gen_batch: Any, state: Any, *args: Any, **kwargs: Any
+    ) -> bool:
+        # Relay positionally and by keyword: 0.7.2 passes ``retain_head=True``
+        # by keyword while older call sites stay positional.
+        return _require_mtp_handoff(
+            original_feed_standard, gen_batch, state, *args, **kwargs
+        )
 
-    def guarded_park_standard(gen_batch: Any, state: Any) -> bool:
-        return _require_mtp_handoff(original_park_standard, gen_batch, state)
+    def guarded_park_standard(
+        gen_batch: Any, state: Any, **kwargs: Any
+    ) -> bool:
+        return _require_mtp_handoff(
+            original_park_standard, gen_batch, state, **kwargs
+        )
 
-    def guarded_late_join_handoff(gen_batch: Any, state: Any) -> bool:
-        return _require_mtp_handoff(original_late_join_handoff, gen_batch, state)
+    def guarded_late_join_handoff(
+        gen_batch: Any, state: Any, **kwargs: Any
+    ) -> bool:
+        return _require_mtp_handoff(
+            original_late_join_handoff, gen_batch, state, **kwargs
+        )
 
     def guarded_reconcile_single(gen_batch: Any, state: Any) -> bool:
         try:
@@ -413,7 +427,7 @@ def _install_mtp_position_guard(
             )
         return result
 
-    def guarded_post_init_mtp(gen_batch: Any) -> None:
+    def guarded_post_init_mtp(gen_batch: Any, **kwargs: Any) -> None:
         # MTP initialization confirms two output tokens and folds the second
         # into the head history. With only one slot left, use the ordinary
         # decoder so neither cache speculates beyond the admitted sequence.
@@ -435,7 +449,7 @@ def _install_mtp_position_guard(
             # no MTP state will consume it on this one-token standard path.
             mtp_batch._prompt_priming.drop_ctx(gen_batch.model)
             return
-        original_post_init_mtp(gen_batch)
+        original_post_init_mtp(gen_batch, **kwargs)
         state = getattr(gen_batch, "_omlx_mtp_state", None)
         if state is not None:
             head_position = _max_cache_position(state.mtp_cache)
@@ -454,9 +468,17 @@ def _install_mtp_position_guard(
         hidden_rows: Any,
         committed: Any,
         prev_buf: Any,
+        depth: int | None = None,
     ) -> None:
         controller = state.controller
-        desired = controller.cur if controller is not None else state.depth
+        explicit_depth = None if depth is None else max(0, int(depth))
+        desired = (
+            explicit_depth
+            if explicit_depth is not None
+            else int(controller.cur)
+            if controller is not None
+            else int(state.depth)
+        )
         pending_materialized = int(
             getattr(state, "_qwen_secure_pending_materialized_token", 0)
         )
@@ -508,10 +530,15 @@ def _install_mtp_position_guard(
                 hidden_rows,
                 committed,
                 prev_buf,
+                depth=safe_depth if explicit_depth is not None else None,
             )
             actual_depth = int(state.drafts.shape[0]) if state.drafts is not None else 0
             final_head_position = _max_cache_position(state.mtp_cache)
-            if actual_depth != safe_depth:
+            # A depth-0 copy handoff leaves the drafts to the caller, so the
+            # equality check only applies to chains this guard actually built.
+            if actual_depth != safe_depth and not (
+                explicit_depth == 0 and safe_depth == 0
+            ):
                 raise _MtpSafetyViolation(
                     "MTP drafter ignored the context-limited depth"
                 )
@@ -529,7 +556,9 @@ def _install_mtp_position_guard(
             else:
                 state.depth = saved_depth
 
-    def guarded_verify_cycle_chain(gen_batch: Any, state: Any) -> None:
+    def guarded_verify_cycle_chain(
+        gen_batch: Any, state: Any, **kwargs: Any
+    ) -> None:
         draft_count = int(state.drafts.shape[0]) if state.drafts is not None else 0
         # The verify forward itself covers next_main + drafts. The final
         # sampled token is not forwarded until a later cycle, but it can be
@@ -552,7 +581,7 @@ def _install_mtp_position_guard(
             raise _MtpSafetyViolation(
                 "MTP verify would exceed the active position/output budget"
             )
-        original_verify_cycle_chain(gen_batch, state)
+        original_verify_cycle_chain(gen_batch, state, **kwargs)
         final_target_position = _max_cache_position(gen_batch.prompt_cache)
         final_head_position = _max_cache_position(state.mtp_cache)
         if (
@@ -669,7 +698,7 @@ def build_app() -> FastAPI:
     # No exposed route may mutate configuration, and even an upstream lifecycle
     # regression must not serialize the in-memory secrets into settings.json.
     def refuse_persistence() -> None:
-        raise RuntimeError("settings persistence is disabled in qwen38-official-omlx")
+        raise RuntimeError("settings persistence is disabled in qwen-omlx")
 
     settings.save = refuse_persistence  # type: ignore[method-assign]
     errors = settings.validate()
@@ -758,7 +787,7 @@ def build_app() -> FastAPI:
             selected.append(route)
 
     facade = FastAPI(
-        title="qwen38-official-omlx isolated inference API",
+        title="qwen-omlx isolated inference API",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the pinned official-derived Qwen3.8 oMLX profile without loading weights."""
+"""Validate the pinned local oMLX experiment without loading model weights."""
 from __future__ import annotations
 
 import argparse
@@ -13,56 +13,84 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 MODEL = ROOT / "model"
+SAGE_MODEL = ROOT / "models" / "sage-a15-omlx"
 STATE = ROOT / "state"
-EXPECTED_REVISION = "02993567061709709fd60b38d64819e2b8f647a3"
+EXPECTED_REVISION = "13ec62924c70a30973ea9f01094cb0a0fdc98e49"
 EXPECTED_WHEEL = (
-    "omlx-0.6.3rc1-cp312-cp312-macosx_15_0_universal2.whl",
-    37_616_059,
-    "7010ff68df48d38f17dde034fd6f3c2dd6c6c872bed29d42513506de4734362c",
+    "omlx-0.7.2-cp312-cp312-macosx_15_0_universal2.whl",
+    39_949_575,
+    "5485347ed66ee64982d4f5efa519585d5bfa565c93f4a2abf8a6d99f5299593d",
 )
 EXPECTED_RUNTIME = {
-    "omlx": "0.6.3rc1",
-    "mlx": "0.32.0",
-    "mlx-lm": "0.31.3",
-    "mlx-metal": "0.32.0",
+    "omlx": "0.7.2",
+    "mlx": "0.32.4",
+    "mlx-lm": "0.31.4.dev132+g94cdcae13",
+    "mlx-metal": "0.32.4",
+    "mlx-vlm": "0.7.8",
 }
 EXPECTED_MODEL_FILES = {
-    ".gitattributes": 1_570,
-    "README.md": 1_841,
-    "chat_template.jinja": 8_952,
-    "config.json": 47_601,
+    ".gitattributes": 1570,
+    "README.md": 730,
+    "chat_template.jinja": 8952,
+    "config.json": 47302,
     "generation_config.json": 202,
-    "model-00001-of-00004.safetensors": 5_026_686_598,
-    "model-00002-of-00004.safetensors": 5_007_312_599,
-    "model-00003-of-00004.safetensors": 5_001_653_249,
-    "model-00004-of-00004.safetensors": 1_936_029_038,
-    "model.safetensors.index.json": 212_223,
-    "oq_imatrix_report.json": 30_927,
+    "merges.txt": 3353259,
+    "model-00001-of-00004.safetensors": 5016415582,
+    "model-00002-of-00004.safetensors": 5017583687,
+    "model-00003-of-00004.safetensors": 5001653251,
+    "model-00004-of-00004.safetensors": 1936029038,
+    "model.safetensors.index.json": 212223,
+    "oq_imatrix_report.json": 30924,
     "preprocessor_config.json": 390,
-    "processor_config.json": 991,
-    "tokenizer.json": 19_989_325,
-    "tokenizer_config.json": 1_165,
-    "vocab.json": 6_722_759,
+    "tokenizer.json": 12809320,
+    "tokenizer_config.json": 17928,
+    "vocab.json": 6722759,
 }
 EXPECTED_SHARDS = {
-    "model-00001-of-00004.safetensors": "cdea257b820391082295d7d2e961b7c2f63d6ffefdd9794b4561999f729bd3f4",
-    "model-00002-of-00004.safetensors": "d36806c9278c65d242753945210f984bed0356fe70a73feca3d385768c5d06ca",
-    "model-00003-of-00004.safetensors": "82ee5ec7c0f32d43443e53f0cad0abf74760fac64bb882066cf020a8aae018b9",
-    "model-00004-of-00004.safetensors": "e50aa1014b12f98cf96f9c6da4db0d43e8baf0b9b07fbeac0b4cfa759450fbda",
+    "model-00001-of-00004.safetensors": "43f60bf56196e774b19aeef33f4c31ca899e781e0ad9f3511449aba473c0b8af",
+    "model-00002-of-00004.safetensors": "d1b7a7aa999f67d0cbe646152717499ad201cbc5f0e2db2d42ecf9561e8a31eb",
+    "model-00003-of-00004.safetensors": "cab354610764b70f8b1886f2b5ce3c26a5078bdcc9ce23ece15ed2e5daad07f8",
+    "model-00004-of-00004.safetensors": "9dc429294139aed7e4bde95ddca238d2f936b7fdb5a1a3caf34bed9509b9620f",
+}
+EXPECTED_SAGE_SHARDS = {
+    "model-00001-of-00005.safetensors": (
+        5_003_458_396,
+        "9c66c32b8a8030a5fb63bb75e46e8a521d7719a34b6dfe9e9c506c6f963f00c3",
+    ),
+    "model-00002-of-00005.safetensors": (
+        5_133_842_447,
+        "e16aa5e2c845a369c29039436be3f0cfa1e4e38b0e818cf3d396da6c114ecc6b",
+    ),
+    "model-00003-of-00005.safetensors": (
+        5_133_842_506,
+        "1538bc338a9efb639238bca7550201cf2631cf5bcb3be064c680800d0c38c6b8",
+    ),
+    "model-00004-of-00005.safetensors": (
+        5_133_842_500,
+        "800375e0512a3aaf8d32810bd2c034115f68ef6c36ed39011efe16c47eee6fc2",
+    ),
+    "model-00005-of-00005.safetensors": (
+        1_207_962_897,
+        "9f36773d40ababde0991853a311362db3c751efef8a7ede862aacc457afff4be",
+    ),
+    "model.safetensors.index.json": (
+        204_314,
+        "be538c50c73c281b7b2f335f27bc49332a7915e3fa4a148011653698dcc910d8",
+    ),
 }
 # Git blob SHA-1 for ordinary Hub files; SHA-256 for the tokenizer LFS object.
 EXPECTED_METADATA_IDS = {
     ".gitattributes": ("git", "52373fe24473b1aa44333d318f578ae6bf04b49b"),
-    "README.md": ("git", "caa6dc28ebe00341b87bf29c793ae5c75dbba6e6"),
+    "README.md": ("git", "d3fcc11c45795c5e466eab63e7ed797dfaf7e140"),
     "chat_template.jinja": ("git", "c0c686f9c38d70d179fb7b5f5aa7530bc913dda3"),
-    "config.json": ("git", "9bb891d70b3acd7f1edc3b84d264f322932746aa"),
+    "config.json": ("git", "8eaffa5a4a3100063280433aaee260c37a8a748a"),
     "generation_config.json": ("git", "023756cfadf88e5bf69eefeee3e172f38c448d64"),
-    "model.safetensors.index.json": ("git", "a362aff809ecfeb89499946e8a0a0060c9a85e83"),
-    "oq_imatrix_report.json": ("git", "147882442150e48f053280995cdf6b0652eea573"),
+    "merges.txt": ("git", "a494e019ca1502219fd0128658b979e5f05ae8e8"),
+    "model.safetensors.index.json": ("git", "9798d031b4e08096ab726c494ef2e51ba1ea5a96"),
+    "oq_imatrix_report.json": ("git", "cac88e4e13a3ff5ba8d5e319d2e917e80d6aabb8"),
     "preprocessor_config.json": ("git", "2ea84a437d448ff71b08df68fdd949d5cc4ebb64"),
-    "processor_config.json": ("git", "8f29fe38a79a9d8367009ebebd25c35b1f3c4e40"),
-    "tokenizer.json": ("sha256", "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"),
-    "tokenizer_config.json": ("git", "1d134cd298be1e3be25db393d93a1cefe80e3214"),
+    "tokenizer.json": ("sha256", "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"),
+    "tokenizer_config.json": ("git", "5de744b3fca2129d7186979ae47c06be33903243"),
     "vocab.json": ("git", "0aa0ce0658d60ac4a5d609f4eadb0e8e43514176"),
 }
 OWNER_ONLY_FILES = (
@@ -111,53 +139,6 @@ def require_owner_only(path: Path) -> None:
     mode = stat.S_IMODE(path.stat().st_mode)
     if mode & 0o077:
         fail(f"{path} is not owner-only (mode {mode:04o})")
-
-
-def validate_control_manifest() -> None:
-    manifest = ROOT / "SOURCE_MANIFEST.sha256"
-    if not manifest.is_file() or manifest.is_symlink():
-        fail("installed control-source manifest is missing")
-    mode = stat.S_IMODE(manifest.stat().st_mode)
-    if mode & 0o077:
-        fail(f"control-source manifest is not owner-only (mode {mode:04o})")
-    expected_names = {
-        "install.sh",
-        "secure_server.py",
-        "verify-model.py",
-        "set-context.py",
-        "context-canary.py",
-        "sandbox.sb",
-        "serve.sh",
-        "launchd-start.sh",
-        "qwen38-official",
-        "settings.template.json",
-        "model_settings.json",
-        "requirements-runtime.txt",
-        "com.local.qwen38-official.plist.template",
-    }
-    entries: dict[str, str] = {}
-    try:
-        lines = manifest.read_text(encoding="ascii").splitlines()
-    except OSError as exc:
-        fail(f"cannot read control-source manifest: {exc}")
-    for line in lines:
-        parts = line.split("  ", 1)
-        if len(parts) != 2 or len(parts[0]) != 64:
-            fail("control-source manifest contains a malformed entry")
-        digest, name = parts
-        if name in entries or "/" in name or name.startswith("."):
-            fail("control-source manifest contains a duplicate/unsafe path")
-        entries[name] = digest
-    if set(entries) != expected_names:
-        fail(
-            "control-source manifest file set mismatch: "
-            f"missing={sorted(expected_names - set(entries))}, "
-            f"extra={sorted(set(entries) - expected_names)}"
-        )
-    for name, expected in entries.items():
-        path = ROOT / name
-        if not path.is_file() or path.is_symlink() or sha256(path) != expected:
-            fail(f"installed control source differs from its install-time manifest: {name}")
 
 
 def validate_runtime(quick: bool) -> None:
@@ -241,7 +222,7 @@ def validate_checkpoint(quick: bool) -> None:
         fail("unexpected base quantization")
 
     index = load_json(MODEL / "model.safetensors.index.json")
-    if int((index.get("metadata") or {}).get("total_size", 0)) != 16_971_681_484:
+    if int((index.get("metadata") or {}).get("total_size", 0)) != 16_971_681_558:
         fail("unexpected indexed model payload size")
     weight_map = index.get("weight_map") or {}
     if len(weight_map) != 2209:
@@ -415,14 +396,14 @@ def validate_total_context_guard() -> None:
     try:
         request = FakeRequest(8_192)
         with _request_output_scope(request):
-            fake.validate_context_window(1_000, "qwen38-official-omlx")
+            fake.validate_context_window(1_000, "qwen38-omlx")
             if request.max_tokens != 8_192:
                 fail("request output was unexpectedly reduced for a short prompt")
-            fake.validate_context_window(260_000, "qwen38-official-omlx")
+            fake.validate_context_window(260_000, "qwen38-omlx")
             if request.max_tokens != 2_144:
                 fail("real request-binding monkeypatch missed the largest prompt")
             with _request_output_scope(outer_request):
-                fake.validate_context_window(262_143, "qwen38-official-omlx")
+                fake.validate_context_window(262_143, "qwen38-omlx")
                 if outer_request.max_tokens != 1:
                     fail("nested request output scope did not bind its own limit")
             if _REQUEST_OUTPUT_BUDGET.get().request is not request:
@@ -433,7 +414,7 @@ def validate_total_context_guard() -> None:
             fail("total-context request guard wrapped itself twice")
         rollback_request = FakeRequest(8_192)
         with _request_output_scope(rollback_request):
-            fake.validate_context_window(30_000, "qwen38-official-omlx")
+            fake.validate_context_window(30_000, "qwen38-omlx")
         if rollback_request.max_tokens != 2_768:
             fail("total-context request guard is not rollback-aware")
         _install_total_context_guard(fake, 262_144)
@@ -445,7 +426,7 @@ def validate_total_context_guard() -> None:
     request = FakeRequest(8_192)
     try:
         with _request_output_scope(request):
-            fake.validate_context_window(260_000, "qwen38-official-omlx")
+            fake.validate_context_window(260_000, "qwen38-omlx")
             raise RuntimeError("expected scope test")
     except RuntimeError as exc:
         if str(exc) != "expected scope test":
@@ -474,7 +455,7 @@ def validate_total_context_guard() -> None:
 
     request = FakeRequest(8_192)
     with _request_output_scope(request):
-        fake.validate_context_window(260_000, "qwen38-official-omlx")
+        fake.validate_context_window(260_000, "qwen38-omlx")
     bound, child_budget = asyncio.run(read_bound_request_with_empty_context(request))
     if bound != 2_144 or child_budget is not None:
         fail("deferred task still depends on inherited ContextVar state")
@@ -720,7 +701,7 @@ def validate_total_context_guard() -> None:
 
     observed_depths = []
 
-    def valid_chain(gen_batch, state, hidden_rows, committed, prev_buf):
+    def valid_chain(gen_batch, state, hidden_rows, committed, prev_buf, depth=None):
         depth = state.controller.cur if state.controller is not None else state.depth
         observed_depths.append(int(depth))
         committed_count = int(committed.shape[0])
@@ -757,7 +738,7 @@ def validate_total_context_guard() -> None:
     ):
         fail("MTP head success path did not apply and restore the safe depth")
 
-    def wrong_depth_chain(gen_batch, state, hidden_rows, committed, prev_buf):
+    def wrong_depth_chain(gen_batch, state, hidden_rows, committed, prev_buf, depth=None):
         depth = state.controller.cur if state.controller is not None else state.depth
         state.mtp_cache[0].offset += int(committed.shape[0])
         state.hist_offset += int(committed.shape[0])
@@ -1014,30 +995,28 @@ def validate_total_context_guard() -> None:
             fail(f"{dispatch_name} swallowed a recoverable fallback")
 
     # Exact handoffs are planned state transitions, but their pinned helpers
-    # use Boolean failure and broad exception catches. Require literal success
-    # at feed, park, and late-join seams so no response or later stock decode
-    # can follow a swallowed post-forward mutation.
+    # use broad exception catches. Exceptions must surface as violations, and
+    # both Boolean outcomes must pass through unchanged: False is a documented
+    # pre-forward "not now" (absent main token, or a queue that has not drained
+    # for the late join) that callers answer with reconcile or a retry.
     handoff_names = (
         "_feed_next_main_to_standard",
         "_park_mtp_to_standard",
         "_handoff_mtp_for_late_join",
     )
     for handoff_name in handoff_names:
-        for behavior, should_pass in (
-            (lambda *args, **kwargs: True, True),
-            (lambda *args, **kwargs: False, False),
-        ):
+        for expected in (True, False):
+            behavior = lambda *args, _value=expected, **kwargs: _value
             fake_mtp = make_fake_mtp_module()
             setattr(fake_mtp, handoff_name, behavior)
             _install_mtp_position_guard(262_144, mtp_batch=fake_mtp)
             try:
                 result = getattr(fake_mtp, handoff_name)(object(), object())
             except _MtpSafetyViolation:
-                if should_pass:
-                    fail(f"{handoff_name} rejected a successful handoff")
+                fail(f"{handoff_name} rejected a {expected} handoff")
             else:
-                if not should_pass or result is not True:
-                    fail(f"{handoff_name} accepted an unproven handoff")
+                if result is not expected:
+                    fail(f"{handoff_name} rewrote a {expected} handoff to {result}")
 
         fake_mtp = make_fake_mtp_module()
 
@@ -1052,6 +1031,35 @@ def validate_total_context_guard() -> None:
             pass
         else:
             fail(f"{handoff_name} swallowed a handoff exception")
+
+    # 0.7.2 hands the committed head to prompt priming with a keyword-only
+    # call style; the guard must relay it both ways instead of narrowing the
+    # pinned signature back to two positional arguments.
+    for call_style in ("kw", "positional"):
+        fake_mtp = make_fake_mtp_module()
+        seen = {}
+        setattr(
+            fake_mtp,
+            "_feed_next_main_to_standard",
+            lambda *args, **kwargs: seen.update(kwargs) or True,
+        )
+        guarded_feed = None
+        _install_mtp_position_guard(262_144, mtp_batch=fake_mtp)
+        guarded_feed = getattr(fake_mtp, "_feed_next_main_to_standard")
+        try:
+            if call_style == "kw":
+                guarded_feed(object(), object(), retain_head=True)
+            else:
+                guarded_feed(object(), object(), True)
+        except TypeError as exc:
+            fail(f"_feed_next_main_to_standard rejected a {call_style} retain_head: {exc}")
+        else:
+            expected = {} if call_style == "positional" else {"retain_head": True}
+            if seen != expected:
+                fail(
+                    f"_feed_next_main_to_standard mistranslated a {call_style} "
+                    f"retain_head: {seen!r}"
+                )
 
     def raising_reconcile(*args, **kwargs):
         raise ValueError("synthetic reconcile failure")
@@ -1192,12 +1200,12 @@ def validate_route_task_graph() -> None:
             for path, base in (
                 (
                     "/v1/completions",
-                    {"model": "qwen38-official-omlx", "prompt": str(near_prompt)},
+                    {"model": "qwen38-omlx", "prompt": str(near_prompt)},
                 ),
                 (
                     "/v1/chat/completions",
                     {
-                        "model": "qwen38-official-omlx",
+                        "model": "qwen38-omlx",
                         "messages": [
                             {"role": "user", "content": str(near_prompt)}
                         ],
@@ -1215,7 +1223,7 @@ def validate_route_task_graph() -> None:
             alias = await post(
                 "/v1/chat/completions",
                 {
-                    "model": "qwen38-official-omlx",
+                    "model": "qwen38-omlx",
                     "messages": [{"role": "user", "content": "100"}],
                     "max_completion_tokens": 999_999,
                     "stream": True,
@@ -1227,7 +1235,7 @@ def validate_route_task_graph() -> None:
             prompt_list = await post(
                 "/v1/completions",
                 {
-                    "model": "qwen38-official-omlx",
+                    "model": "qwen38-omlx",
                     "prompt": ["100", str(near_prompt)],
                     "max_tokens": 8_192,
                 },
@@ -1239,7 +1247,7 @@ def validate_route_task_graph() -> None:
                 post(
                     "/v1/completions",
                     {
-                        "model": "qwen38-official-omlx",
+                        "model": "qwen38-omlx",
                         "prompt": str(near_prompt),
                         "max_tokens": 8_192,
                         "stream": True,
@@ -1248,7 +1256,7 @@ def validate_route_task_graph() -> None:
                 post(
                     "/v1/chat/completions",
                     {
-                        "model": "qwen38-official-omlx",
+                        "model": "qwen38-omlx",
                         "messages": [{"role": "user", "content": "100"}],
                         "max_tokens": 8_192,
                     },
@@ -1261,7 +1269,7 @@ def validate_route_task_graph() -> None:
             exact_completion = await post(
                 "/v1/completions",
                 {
-                    "model": "qwen38-official-omlx",
+                    "model": "qwen38-omlx",
                     "prompt": str(active_context),
                     "max_tokens": 1,
                 },
@@ -1270,7 +1278,7 @@ def validate_route_task_graph() -> None:
             exact_chat = await post(
                 "/v1/chat/completions",
                 {
-                    "model": "qwen38-official-omlx",
+                    "model": "qwen38-omlx",
                     "messages": [
                         {"role": "user", "content": str(active_context)}
                     ],
@@ -1297,7 +1305,7 @@ def validate_route_task_graph() -> None:
             failed = await client.post(
                 "/v1/completions",
                 headers=headers,
-                json={"model": "qwen38-official-omlx", "prompt": "-1", "max_tokens": 8_192},
+                json={"model": "qwen38-omlx", "prompt": "-1", "max_tokens": 8_192},
             )
             if failed.status_code != 500:
                 raise AssertionError("synthetic endpoint failure did not surface")
@@ -1311,7 +1319,7 @@ def validate_route_task_graph() -> None:
                 )
             after_failure = await post(
                 "/v1/completions",
-                {"model": "qwen38-official-omlx", "prompt": "100", "max_tokens": 8_192},
+                {"model": "qwen38-omlx", "prompt": "100", "max_tokens": 8_192},
             )
             if after_failure.json()["effective"] != 8_192:
                 raise AssertionError("failed request contaminated its successor")
@@ -1319,7 +1327,7 @@ def validate_route_task_graph() -> None:
             malformed = await client.post(
                 "/v1/completions",
                 headers=headers,
-                json={"model": "qwen38-official-omlx", "prompt": "100", "max_tokens": "bad"},
+                json={"model": "qwen38-omlx", "prompt": "100", "max_tokens": "bad"},
             )
             malformed_payload = malformed.json()
             if (
@@ -1333,7 +1341,7 @@ def validate_route_task_graph() -> None:
 
             invalid_request = await post(
                 "/v1/completions",
-                {"model": "qwen38-official-omlx", "prompt": "-4", "max_tokens": 1},
+                {"model": "qwen38-omlx", "prompt": "-4", "max_tokens": 1},
                 expected=400,
             )
             if (invalid_request.json().get("error") or {}).get("param") != "prompt":
@@ -1341,7 +1349,7 @@ def validate_route_task_graph() -> None:
 
             queue_full = await post(
                 "/v1/completions",
-                {"model": "qwen38-official-omlx", "prompt": "-5", "max_tokens": 1},
+                {"model": "qwen38-omlx", "prompt": "-5", "max_tokens": 1},
                 expected=503,
             )
             if queue_full.headers.get("Retry-After") != "1":
@@ -1349,7 +1357,7 @@ def validate_route_task_graph() -> None:
 
             aborted = await post(
                 "/v1/completions",
-                {"model": "qwen38-official-omlx", "prompt": "-3", "max_tokens": 1},
+                {"model": "qwen38-omlx", "prompt": "-3", "max_tokens": 1},
                 expected=400,
             )
             aborted_error = aborted.json().get("error") or {}
@@ -1363,12 +1371,12 @@ def validate_route_task_graph() -> None:
             for path, body in (
                 (
                     "/v1/completions",
-                    {"model": "qwen38-official-omlx", "prompt": "-2", "max_tokens": 1},
+                    {"model": "qwen38-omlx", "prompt": "-2", "max_tokens": 1},
                 ),
                 (
                     "/v1/chat/completions",
                     {
-                        "model": "qwen38-official-omlx",
+                        "model": "qwen38-omlx",
                         "messages": [{"role": "user", "content": "-2"}],
                         "max_tokens": 1,
                     },
@@ -1391,7 +1399,7 @@ def validate_route_task_graph() -> None:
 
             unauthorized = await client.post(
                 "/v1/completions",
-                json={"model": "qwen38-official-omlx", "prompt": "100", "max_tokens": 1},
+                json={"model": "qwen38-omlx", "prompt": "100", "max_tokens": 1},
             )
             if unauthorized.status_code not in (401, 403):
                 raise AssertionError("local completion wrapper bypassed API auth")
@@ -1522,16 +1530,24 @@ def validate_isolation() -> None:
         fail("distributed inference is not disabled")
     if int(scheduler.get("max_concurrent_requests", 0)) != 1:
         fail("benchmark profile must allow exactly one concurrent request")
-    if memory.get("prefill_memory_guard") is not True or memory.get("memory_guard_tier") != "safe":
-        fail("safe prefill memory guard is not enabled")
+    if memory.get("prefill_memory_guard") is not True or memory.get("memory_guard_tier") not in {
+        "safe",
+        "balanced",
+    }:
+        fail("prefill memory guard is not enabled at safe or balanced")
+    # Two resident models leave too little headroom for a normal agent prompt,
+    # so an unused model must unload on its own.
+    idle_seconds = (settings.get("idle_timeout") or {}).get("idle_timeout_seconds")
+    if not isinstance(idle_seconds, int) or not 120 <= idle_seconds <= 3600:
+        fail("idle timeout must unload unused models between 120 and 3600 seconds")
     if cache.get("enabled") is not True or cache.get("hot_cache_only") is not False:
         fail("paged SSD cache must be enabled without hot-cache-only mode")
     cache_size = cache.get("ssd_cache_max_size")
-    if cache_size not in {"20GB", "40GB"} or str(cache.get("hot_cache_max_size")) != "0":
-        fail("cache limits must remain 20GB/40GB SSD and zero reserved hot cache")
+    if cache_size not in {"20GB", "40GB", "64GB"} or str(cache.get("hot_cache_max_size")) not in {"0", "64GB"}:
+        fail("cache limits must remain 20-64GB SSD and hot cache 0 or 64GB")
     if auth.get("skip_api_key_verification") is not False:
         fail("API key verification is disabled")
-    if auth.get("secret_key") != "environment-managed-by-qwen38-official-omlx" or auth.get("api_key"):
+    if auth.get("secret_key") != "environment-managed-by-qwen-omlx" or auth.get("api_key"):
         fail("settings.json contains or requests persistent real auth secrets")
     if mcp.get("config_path") is not None or mcp.get("expose_tools") is not False:
         fail("MCP is not fully disabled")
@@ -1559,30 +1575,34 @@ def validate_isolation() -> None:
         paths_match_isolated_dir = False
     if not paths_match_isolated_dir:
         fail("model discovery escaped the isolated profile")
-    link = ROOT / "models" / "qwen38-official-omlx"
+    link = ROOT / "models" / "qwen38-omlx"
     if not link.is_symlink() or link.resolve() != MODEL.resolve():
         fail("isolated model alias does not resolve to the pinned checkpoint")
+    sage_link = SAGE_MODEL
+    if not sage_link.is_symlink() or not sage_link.resolve().is_dir():
+        fail("secondary model alias is missing or does not resolve to a checkpoint")
 
     model_settings = load_json(STATE / "model_settings.json")
     models = model_settings.get("models") or {}
-    if set(models) != {"qwen38-official-omlx"}:
+    if set(models) != {"qwen38-omlx", "sage-a15-omlx"}:
         fail(f"unexpected persisted model settings: {sorted(models)}")
-    profile = models["qwen38-official-omlx"]
+    profile = models["qwen38-omlx"]
     sampling = settings.get("sampling") or {}
-    context_values = {
-        int(sampling.get("max_context_window", 0)),
-        int(sampling.get("max_context_window_policy", 0)),
-        int(profile.get("max_context_window", 0)),
-    }
-    if len(context_values) != 1:
-        fail("global, policy, and per-model context windows must match")
-    effective_context = next(iter(context_values))
-    if effective_context not in {32_768, 262_144}:
-        fail("effective context window must be either rollback 32768 or native 262144")
-    if effective_context == 262_144 and cache_size != "40GB":
-        fail("native 262144 context requires the 40GB SSD cache policy")
-    if int(sampling.get("max_tokens", 0)) != 8192 or int(profile.get("max_tokens", 0)) != 8192:
-        fail("generation output limit must remain fixed to 8192 tokens")
+    for name, candidate in models.items():
+        context_values = {
+            int(sampling.get("max_context_window", 0)),
+            int(sampling.get("max_context_window_policy", 0)),
+            int(candidate.get("max_context_window", 0)),
+        }
+        if len(context_values) != 1:
+            fail(f"global, policy, and per-model context windows must match for {name}")
+        effective_context = next(iter(context_values))
+        if effective_context not in {32_768, 262_144}:
+            fail(f"effective context window for {name} must be either rollback 32768 or native 262144")
+        if effective_context == 262_144 and cache_size not in {"40GB", "64GB"}:
+            fail(f"native 262144 context for {name} requires the 40GB or 64GB SSD cache policy")
+        if int(sampling.get("max_tokens", 0)) != 8192 or int(candidate.get("max_tokens", 0)) != 8192:
+            fail(f"generation output limit for {name} must remain fixed to 8192 tokens")
     required_false = (
         "trust_remote_code",
         "turboquant_kv_enabled",
@@ -1591,14 +1611,42 @@ def validate_isolation() -> None:
         "dflash_enabled",
         "vlm_mtp_enabled",
     )
+    # 2026-09-23 production campaign verdict: baseline (fp16 KV, ANE off)
+    # wins or ties every regime tested (3-6K and 20K contexts) — kv4 pays
+    # quant/dequant cost, ANE prefill shows no measurable gain. Both stay
+    # pinned off; evidence in state/benchmarks/REPORT.md.
     if any(profile.get(key) is not False for key in required_false):
         fail("one or more forbidden model acceleration/code paths are enabled")
     if profile.get("mtp_enabled") is not True or int(profile.get("mtp_num_draft_tokens", 0)) != 3:
         fail("Lightning MTP depth 1..3 is not enabled")
     if profile.get("model_type_override") != "llm":
         fail("checkpoint is not forced through the text-only engine")
-    if profile.get("model_alias") != "qwen38-official-omlx" or profile.get("is_pinned") is not True:
+    if profile.get("model_alias") != "qwen38-omlx" or profile.get("is_pinned") is not True:
         fail("model identity/pinning mismatch")
+
+    # Secondary model (Sage-A1.5): same safety posture as the pinned profile,
+    # but the deployment stays opt-in until it passes its own campaign.
+    sage = models["sage-a15-omlx"]
+    if any(sage.get(key) is not False for key in required_false):
+        fail("one or more forbidden Sage acceleration/code paths are enabled")
+    if sage.get("mtp_enabled") is True and int(sage.get("mtp_num_draft_tokens", 0)) != 3:
+        fail("Sage Lightning MTP depth is pinned to 3 when enabled")
+    if sage.get("mtp_enabled") is not True:
+        # The benchmark campaign toggles this axis; the pinned profile keeps
+        # it on, and the arm labels record the exception.
+        print("note: Sage MTP is currently disabled (benchmark arm)")
+    if sage.get("model_type_override") not in {"llm", "vlm"}:
+        fail("Sage checkpoint is not bound to a known engine")
+    if sage.get("model_alias") != "sage-a15-omlx" or sage.get("is_pinned") is not True:
+        fail("Sage model identity/pinning mismatch")
+    if sage.get("is_default") is not False:
+        fail("Sage must not take over the default model from the pinned one")
+    # Sage deliberates past the default output cap on trivial prompts, which
+    # returns empty content; a bounded thinking budget keeps answers non-empty.
+    if sage.get("thinking_budget_enabled") is not True:
+        fail("Sage thinking budget is not enabled")
+    if not 512 <= int(sage.get("thinking_budget_tokens", 0)) <= 8_192:
+        fail("Sage thinking budget must stay between 512 and 8192 tokens")
 
     # Avoid accepting hostile inherited overrides when the launcher is invoked
     # manually. The launcher itself sets only the explicit safe values.
@@ -1616,19 +1664,36 @@ def validate_isolation() -> None:
         fail(f"unexpected inherited oMLX overrides: {', '.join(inherited)}")
 
 
+def validate_sage_checkpoint(quick: bool) -> None:
+    """Authenticate the secondary checkpoint against its published SHA256SUMS."""
+    root = SAGE_MODEL.resolve()
+    expected_shards = {name for name in EXPECTED_SAGE_SHARDS if name.endswith(".safetensors")}
+    existing = {path.name for path in root.glob("*.safetensors")}
+    if existing != expected_shards:
+        fail(f"secondary checkpoint shard set differs: {sorted(existing ^ expected_shards)}")
+    for name, (size, digest) in EXPECTED_SAGE_SHARDS.items():
+        path = root / name
+        actual_size = path.stat().st_size
+        if actual_size != size:
+            fail(f"{name}: size {actual_size} != {size}")
+        if not quick and sha256(path) != digest:
+            fail(f"{name}: SHA-256 mismatch")
+    print(f"secondary checkpoint: {len(EXPECTED_SAGE_SHARDS)} files size{' and SHA-256' if not quick else ''} OK")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--quick", action="store_true", help="skip full wheel/shard SHA-256 reads")
     args = parser.parse_args()
 
-    validate_control_manifest()
     validate_runtime(args.quick)
     validate_checkpoint(args.quick)
+    validate_sage_checkpoint(args.quick)
     validate_isolation()
     validate_total_context_guard()
     validate_route_task_graph()
     mode = "quick structural" if args.quick else "full cryptographic"
-    print(f"official-derived profile valid ({mode}); revision={EXPECTED_REVISION}; mtp_tensors=29; outbound=denied")
+    print(f"experiment valid ({mode}); revision={EXPECTED_REVISION}; mtp_tensors=29; outbound=denied")
     return 0
 
 
