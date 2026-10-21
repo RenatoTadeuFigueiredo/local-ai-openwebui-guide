@@ -148,7 +148,7 @@ The validator was widened, not loosened:
 [`examples/localagent-dashboard/`](../../examples/localagent-dashboard/) is a local-only Grafana
 stack for this profile: a host exporter scrapes the facade, the completion log and the usage
 database, Prometheus keeps 30 days, and Grafana provisions the folder `LocalAgent` with the
-dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`.
+dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`, organised as tabs.
 
 ```bash
 ./monitoring/up.sh     # after `qwen-omlx start`

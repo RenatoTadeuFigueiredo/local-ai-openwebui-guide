@@ -1,1114 +1,1757 @@
 {
-  "uid": "localagent-omlx",
-  "title": "LocalAgent \u2014 oMLX (qwen38 + sage-a15)",
-  "tags": [
-    "localagent",
-    "omlx",
-    "local-ai"
-  ],
-  "timezone": "browser",
-  "schemaVersion": 39,
-  "version": 1,
-  "refresh": "30s",
-  "time": {
-    "from": "now-6h",
-    "to": "now"
+  "apiVersion": "dashboard.grafana.app/v2beta1",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "localagent-omlx",
+    "labels": {
+      "grafana.app/folder": "localagent"
+    }
   },
-  "editable": true,
-  "graphTooltip": 1,
-  "templating": {
-    "list": [
-      {
-        "name": "model",
-        "label": "Modelo",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus-local"
-        },
-        "query": "label_values(omlx_requests_total, model)",
-        "includeAll": true,
-        "multi": true,
-        "refresh": 2,
-        "current": {
-          "selected": true,
-          "text": "All",
-          "value": "$__all"
+  "spec": {
+    "title": "LocalAgent \u2014 oMLX (qwen38 + sage-a15)",
+    "description": "Local monitoring for the oMLX profile. Tabs: overview, MTP seams, cache, traffic, errors, history.",
+    "tags": [
+      "localagent",
+      "omlx",
+      "local-ai"
+    ],
+    "schemaVersion": 42,
+    "cursorSync": "Off",
+    "editable": true,
+    "elements": {
+      "p1": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Facade",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "mappings": [
+                    {
+                      "type": "value",
+                      "options": {
+                        "0": {
+                          "text": "down",
+                          "color": "red"
+                        },
+                        "1": {
+                          "text": "up",
+                          "color": "green"
+                        }
+                      }
+                    }
+                  ],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "green",
+                        "value": 1
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_healthy",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Health probe result of the local facade."
+        }
+      },
+      "p2": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Modelos carregados",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_models_loaded",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p3": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Mem\u00f3ria do engine",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_engine_memory_bytes",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Engine pool memory in use against the ceiling."
+        }
+      },
+      "p4": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Uso do teto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "max": 100,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "yellow",
+                        "value": 70
+                      },
+                      {
+                        "color": "red",
+                        "value": 85
+                      }
+                    ]
+                  },
+                  "unit": "percent"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "100 * omlx_engine_memory_bytes / omlx_memory_ceiling_bytes",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p5": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Decode agora \u2014 qwen38",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(omlx_generated_tokens_total{model=\"qwen38-omlx\"}[2m]))",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p6": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Decode agora \u2014 sage",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(omlx_generated_tokens_total{model=\"sage-a15-omlx\"}[2m]))",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p7": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Erros (janela)",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum(increase(omlx_errors_total[$__range]))",
+                        "instant": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Handoff, engine, memory-guard and stream errors inside the visible window."
+        }
+      },
+      "p8": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Decode tok/s por modelo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_generated_tokens_total{model=~\"$model\"}[$__rate_interval]))",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Completion tokens per second emitted per model."
+        }
+      },
+      "p9": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Prefill tok/s por modelo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_prompt_tokens_logged_total{model=~\"$model\"}[$__rate_interval]))",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Prompt tokens per second accepted per model."
+        }
+      },
+      "p10": {
+        "kind": "Panel",
+        "spec": {
+          "title": "TTFT m\u00e9dio por modelo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_ttft_seconds_sum{model=~\"$model\"}[$__rate_interval])) / sum by (model) (rate(omlx_ttft_seconds_count{model=~\"$model\"}[$__rate_interval]))",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Average time to first token for finished streaming requests."
+        }
+      },
+      "p11": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Aceita\u00e7\u00e3o de drafts",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "min": 0,
+                  "max": 1,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "red",
+                        "value": null
+                      },
+                      {
+                        "color": "yellow",
+                        "value": 0.55
+                      },
+                      {
+                        "color": "green",
+                        "value": 0.7
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_mtp_accept_ratio",
+                        "legendFormat": "accept ratio"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p12": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Drafts e aceitos por minuto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "rate(omlx_mtp_draft_total[$__rate_interval]) * 60",
+                        "legendFormat": "drafted"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "B",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "rate(omlx_mtp_accept_total[$__rate_interval]) * 60",
+                        "legendFormat": "accepted"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p13": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Parks e re-entradas",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "increase(omlx_mtp_parks_total[$__rate_interval])",
+                        "legendFormat": "parks"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "B",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "increase(omlx_mtp_reentry_success_total[$__rate_interval])",
+                        "legendFormat": "re-entry ok"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Park handoffs and successful re-entry probes. A park without a later success means the standard path is carrying the request."
+        }
+      },
+      "p14": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Raz\u00e3o de cache hit",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_cache_hit_ratio{model=\"qwen38-omlx\"}",
+                        "legendFormat": "qwen38-omlx"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "B",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_cache_hit_ratio{model=\"sage-a15-omlx\"}",
+                        "legendFormat": "sage-a15-omlx"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p15": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Restores de prefix cache",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "increase(omlx_cache_restores_total[$__rate_interval])",
+                        "legendFormat": "restores"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p16": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Tokens de cache por minuto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "rate(omlx_cached_tokens_total{model=\"qwen38-omlx\"}[$__rate_interval]) * 60",
+                        "legendFormat": "qwen38-omlx"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "B",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "rate(omlx_cached_tokens_total{model=\"sage-a15-omlx\"}[$__rate_interval]) * 60",
+                        "legendFormat": "sage-a15-omlx"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p17": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Requisi\u00e7\u00f5es por minuto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_finished_requests_total{model=~\"$model\"}[$__rate_interval])) * 60",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p18": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Tokens de prompt por minuto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_prompt_tokens_logged_total{model=~\"$model\"}[$__rate_interval])) * 60",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p19": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Tokens gerados por minuto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (model) (rate(omlx_generated_tokens_total{model=~\"$model\"}[$__rate_interval])) * 60",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p20": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Erros por tipo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (kind) (increase(omlx_errors_total[$__rate_interval]))",
+                        "legendFormat": "{{kind}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "handoff = MTP seam violation, engine = engine-loop error, memory_guard = prefill abort, stream = client stream error."
+        }
+      },
+      "p21": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Fim por motivo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "sum by (reason) (increase(omlx_finish_reason_total[$__rate_interval]))",
+                        "legendFormat": "{{reason}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p22": {
+        "kind": "Panel",
+        "spec": {
+          "title": "RSS do processo",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_server_rss_bytes",
+                        "legendFormat": "rss"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p23": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Mem\u00f3ria do engine vs teto",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes"
+                },
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_engine_memory_bytes",
+                        "legendFormat": "used"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "B",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_memory_ceiling_bytes",
+                        "legendFormat": "ceiling"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "p24": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Requisi\u00e7\u00f5es por hora (48 h)",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "barchart",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_hourly_requests{}",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Hour buckets recorded by the server in state/usage.sqlite3 before the exporter existed."
+        }
+      },
+      "p25": {
+        "kind": "Panel",
+        "spec": {
+          "title": "Tokens gerados por hora (48 h)",
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "barchart",
+            "version": "",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {}
+            }
+          },
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "refId": "A",
+                    "hidden": false,
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus-local"
+                      },
+                      "spec": {
+                        "expr": "omlx_hourly_completion_tokens{}",
+                        "legendFormat": "{{model}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
         }
       }
-    ]
-  },
-  "panels": [
-    {
-      "id": 1,
-      "type": "row",
-      "title": "Sa\u00fade e capacidade",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "panels": []
     },
-    {
-      "id": 2,
-      "type": "stat",
-      "title": "Facade",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 0,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_healthy",
-          "legendFormat": "healthy",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "down",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "up",
-                  "color": "green"
+    "layout": {
+      "kind": "TabsLayout",
+      "spec": {
+        "tabs": [
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "Vis\u00e3o geral",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 3,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p1"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 3,
+                        "y": 0,
+                        "width": 3,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p2"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 6,
+                        "y": 0,
+                        "width": 4,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p3"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 10,
+                        "y": 0,
+                        "width": 4,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p4"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 14,
+                        "y": 0,
+                        "width": 3,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p5"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 17,
+                        "y": 0,
+                        "width": 3,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p6"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 20,
+                        "y": 0,
+                        "width": 4,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p7"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 4,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p8"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 8,
+                        "y": 4,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p9"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 16,
+                        "y": 4,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p10"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
+          },
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "MTP",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 10,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p11"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 10,
+                        "y": 0,
+                        "width": 7,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p12"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 17,
+                        "y": 0,
+                        "width": 7,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p13"
+                        }
+                      }
+                    }
+                  ]
+                }
               }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Health probe result of the local facade."
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "Modelos carregados",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 3,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_models_loaded",
-          "legendFormat": "loaded",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
+            }
           },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "Mem\u00f3ria do engine",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 6,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_engine_memory_bytes",
-          "legendFormat": "used",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "description": "Engine pool memory in use against the ceiling."
-    },
-    {
-      "id": 5,
-      "type": "gauge",
-      "title": "Uso do teto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 10,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "100 * omlx_engine_memory_bytes / omlx_memory_ceiling_bytes",
-          "legendFormat": "ceiling",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "Cache",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p14"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 6,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p15"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 18,
+                        "y": 0,
+                        "width": 6,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p16"
+                        }
+                      }
+                    }
+                  ]
+                }
               }
-            ]
-          }
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 6,
-      "type": "stat",
-      "title": "Decode agora \u2014 qwen38",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 14,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(rate(omlx_generated_tokens_total{model=\"qwen38-omlx\"}[2m]))",
-          "legendFormat": "tok/s",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
+            }
           },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 7,
-      "type": "stat",
-      "title": "Decode agora \u2014 sage",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 17,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(rate(omlx_generated_tokens_total{model=\"sage-a15-omlx\"}[2m]))",
-          "legendFormat": "tok/s",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 8,
-      "type": "stat",
-      "title": "Erros (janela)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 1
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(increase(omlx_errors_total[$__range]))",
-          "legendFormat": "errors",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Handoff, engine, memory-guard and stream errors inside the visible window."
-    },
-    {
-      "id": 9,
-      "type": "row",
-      "title": "Throughput",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "panels": []
-    },
-    {
-      "id": 10,
-      "type": "timeseries",
-      "title": "Decode tok/s por modelo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 2
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_generated_tokens_total{model=~\"$model\"}[$__rate_interval]))",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Completion tokens per second emitted per model."
-    },
-    {
-      "id": 11,
-      "type": "timeseries",
-      "title": "Prefill tok/s por modelo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 2
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_prompt_tokens_logged_total{model=~\"$model\"}[$__rate_interval]))",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Prompt tokens per second accepted per model."
-    },
-    {
-      "id": 12,
-      "type": "timeseries",
-      "title": "TTFT m\u00e9dio por modelo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 2
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_ttft_seconds_sum{model=~\"$model\"}[$__rate_interval])) / sum by (model) (rate(omlx_ttft_seconds_count{model=~\"$model\"}[$__rate_interval]))",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "description": "Average time to first token for finished streaming requests."
-    },
-    {
-      "id": 13,
-      "type": "row",
-      "title": "MTP (speculative decode)",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 10
-      },
-      "panels": []
-    },
-    {
-      "id": 14,
-      "type": "timeseries",
-      "title": "Aceita\u00e7\u00e3o de drafts",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 10,
-        "x": 0,
-        "y": 11
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_mtp_accept_ratio",
-          "legendFormat": "accept ratio",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.55
-              },
-              {
-                "color": "green",
-                "value": 0.7
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "Tr\u00e1fego",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p17"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 8,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p18"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 16,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p19"
+                        }
+                      }
+                    }
+                  ]
+                }
               }
-            ]
+            }
+          },
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "Erros e processo",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p20"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 8,
+                        "y": 0,
+                        "width": 4,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p21"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 4,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p22"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 16,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p23"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "TabsLayoutTab",
+            "spec": {
+              "title": "Hist\u00f3rico",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p24"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "p25"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
           }
-        },
-        "overrides": []
+        ]
       }
     },
-    {
-      "id": 15,
-      "type": "timeseries",
-      "title": "Drafts e aceitos por minuto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 10,
-        "y": 11
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "rate(omlx_mtp_draft_total[$__rate_interval]) * 60",
-          "legendFormat": "drafted",
+    "variables": [
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "model",
+          "label": "Modelo",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "multi": true,
+          "includeAll": true,
+          "allValue": "$__all",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus-local"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "rate(omlx_mtp_accept_total[$__rate_interval]) * 60",
-          "legendFormat": "accepted",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
+          },
+          "query": {
+            "kind": "prometheus",
+            "spec": {
+              "expr": "label_values(omlx_requests_total, model)",
+              "refId": "A"
+            }
+          },
+          "definition": "label_values(omlx_requests_total, model)",
+          "sort": "alphabeticalAsc",
+          "options": []
         }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
       }
-    },
-    {
-      "id": 16,
-      "type": "timeseries",
-      "title": "Parks e re-entradas",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 17,
-        "y": 11
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "increase(omlx_mtp_parks_total[$__rate_interval])",
-          "legendFormat": "parks",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "increase(omlx_mtp_reentry_success_total[$__rate_interval])",
-          "legendFormat": "re-entry ok",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Park handoffs and successful re-entry probes. A park without a later success means the standard path is carrying the request."
-    },
-    {
-      "id": 17,
-      "type": "row",
-      "title": "Cache",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 18
-      },
-      "panels": []
-    },
-    {
-      "id": 18,
-      "type": "timeseries",
-      "title": "Raz\u00e3o de cache hit",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 19
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_cache_hit_ratio{model=\"qwen38-omlx\"}",
-          "legendFormat": "qwen38-omlx",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "omlx_cache_hit_ratio{model=\"sage-a15-omlx\"}",
-          "legendFormat": "sage-a15-omlx",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "percentunit"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 19,
-      "type": "timeseries",
-      "title": "Restores de prefix cache",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 12,
-        "y": 19
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "increase(omlx_cache_restores_total[$__rate_interval])",
-          "legendFormat": "restores",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 20,
-      "type": "timeseries",
-      "title": "Tokens de cache por minuto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 18,
-        "y": 19
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "rate(omlx_cached_tokens_total{model=\"qwen38-omlx\"}[$__rate_interval]) * 60",
-          "legendFormat": "qwen38-omlx",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "rate(omlx_cached_tokens_total{model=\"sage-a15-omlx\"}[$__rate_interval]) * 60",
-          "legendFormat": "sage-a15-omlx",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 21,
-      "type": "row",
-      "title": "Tr\u00e1fego",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 26
-      },
-      "panels": []
-    },
-    {
-      "id": 22,
-      "type": "timeseries",
-      "title": "Requisi\u00e7\u00f5es por minuto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 0,
-        "y": 27
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_finished_requests_total{model=~\"$model\"}[$__rate_interval])) * 60",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 23,
-      "type": "timeseries",
-      "title": "Tokens de prompt por minuto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 8,
-        "y": 27
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_prompt_tokens_logged_total{model=~\"$model\"}[$__rate_interval])) * 60",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 24,
-      "type": "timeseries",
-      "title": "Tokens gerados por minuto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 16,
-        "y": 27
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (model) (rate(omlx_generated_tokens_total{model=~\"$model\"}[$__rate_interval])) * 60",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 25,
-      "type": "row",
-      "title": "Erros e mem\u00f3ria do processo",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 34
-      },
-      "panels": []
-    },
-    {
-      "id": 26,
-      "type": "timeseries",
-      "title": "Erros por tipo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 0,
-        "y": 35
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (kind) (increase(omlx_errors_total[$__rate_interval]))",
-          "legendFormat": "{{kind}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "handoff = MTP seam violation, engine = engine-loop error, memory_guard = prefill abort, stream = client stream error."
-    },
-    {
-      "id": 27,
-      "type": "timeseries",
-      "title": "Fim por motivo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 8,
-        "y": 35
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum by (reason) (increase(omlx_finish_reason_total[$__rate_interval]))",
-          "legendFormat": "{{reason}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 28,
-      "type": "timeseries",
-      "title": "RSS do processo",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 12,
-        "y": 35
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_server_rss_bytes",
-          "legendFormat": "rss",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "bytes"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 29,
-      "type": "timeseries",
-      "title": "Mem\u00f3ria do engine vs teto",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 16,
-        "y": 35
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_engine_memory_bytes",
-          "legendFormat": "used",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "omlx_memory_ceiling_bytes",
-          "legendFormat": "ceiling",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "bytes"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 30,
-      "type": "row",
-      "title": "Hist\u00f3rico por hora",
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "panels": []
-    },
-    {
-      "id": 31,
-      "type": "barchart",
-      "title": "Requisi\u00e7\u00f5es por hora (48 h)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 43
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_hourly_requests{}",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Hour buckets recorded by the server in state/usage.sqlite3 before the exporter existed."
-    },
-    {
-      "id": 32,
-      "type": "barchart",
-      "title": "Tokens gerados por hora (48 h)",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-local"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 43
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "omlx_hourly_completion_tokens{}",
-          "legendFormat": "{{model}}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-local"
-          }
-        }
-      ],
-      "options": {},
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "unit": "short"
-        },
-        "overrides": []
-      }
+    ],
+    "timeSettings": {
+      "from": "now-6h",
+      "to": "now",
+      "timezone": "browser",
+      "autoRefresh": "30s"
     }
-  ]
+  }
 }

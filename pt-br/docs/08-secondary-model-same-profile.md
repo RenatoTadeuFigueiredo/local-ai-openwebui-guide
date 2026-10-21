@@ -148,7 +148,7 @@ O validador foi ampliado, não afrouxado:
 [`examples/localagent-dashboard/`](../../examples/localagent-dashboard/) é uma stack Grafana
 exclusivamente local para este perfil: um exporter no host lê a fachada, o log de conclusão e o
 banco de uso; o Prometheus guarda 30 dias; e o Grafana provisiona a pasta `LocalAgent` com o
-dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`.
+dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`, organizado em abas.
 
 ```bash
 ./monitoring/up.sh     # depois de `qwen-omlx start`

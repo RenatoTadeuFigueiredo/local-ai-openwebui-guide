@@ -20,6 +20,25 @@ edits. The dashboard `LocalAgent — oMLX (qwen38 + sage-a15)` is provisioned fr
 views live in the `grafana-data` volume, but the file is the source of truth on
 conflict.
 
+## Dashboard format
+
+The dashboard is stored in the **v2 schema** (`apiVersion:
+dashboard.grafana.app/v2beta1`), because tabs only exist there: `layout` is a
+`TabsLayout` with six tabs, each holding its own `GridLayout`, and panels live
+in a flat `elements` map referenced by `ElementReference`.
+
+Two details are easy to get wrong when hand-editing the file:
+
+- the panel plugin goes in `vizConfig.group` with `kind: "VizConfig"`;
+- queries are `kind: "DataQuery"` with `group: "prometheus"` and the datasource
+  in `datasource: {name: "prometheus-local"}` — the string is the **datasource
+  uid**;
+- `annotations: []` is rejected by the CUE schema; leave the key out.
+
+`dashboardNewLayouts` is on by default in Grafana 13, so the file renders as
+tabs. The legacy `/api/dashboards/uid/...` view flattens the tabs into rows,
+which is expected.
+
 ## What the exporter publishes
 
 Request outcomes come from the facade completion lines
