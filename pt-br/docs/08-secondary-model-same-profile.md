@@ -99,6 +99,25 @@ Os dois modelos residentes, 39,5 GB de pesos, teto do engine 52,9 GB, swap zero.
 A atualização não é regressão para o modelo fixado: só o compartilhamento de verify do MTP elevou o
 decode longo em cerca de 50 %.
 
+### Campanha (braços de uma variável)
+
+Os números de fumaça acima foram substituídos por uma campanha de verdade — mesmo
+formato de harness do doc 07, braços `vlm`+MTP3 vs `llm`+MTP3 vs `vlm` sem MTP,
+regimes curto (~4,6K) e longo (~19K), guarda factual de 8 perguntas, tripla de
+determinismo. Decode é a mediana dos turnos 2–6.
+
+| Braço | Decode curto | Decode longo | QA |
+|---|---|---|---|
+| `vlm` + MTP3 (mantido) | 114,1 tok/s | 81,3 tok/s | 8/8 |
+| `llm` + MTP3 | 75,7 tok/s | 48,1 tok/s | 8/8 |
+| `vlm`, MTP desligado | 93,1 tok/s | 92,6 tok/s | 8/8 |
+
+O MTP só compensa com contexto curto; o engine somente-texto perde para `vlm` nos
+dois regimes, então o perfil mantém `vlm` + MTP profundidade 3. O determinismo não
+se reproduziu (2 de 3 execuções byte-idênticas). Números completos e o achado da
+guarda de memória na coexistência estão em
+[`../examples/model-bench/secondary-report.md`](../examples/model-bench/secondary-report.md).
+
 ## 5. Mudanças no validador
 
 O validador foi ampliado, não afrouxado:

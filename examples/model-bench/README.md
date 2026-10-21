@@ -23,6 +23,7 @@ fp16 KV and ANE prefill stay OFF. Full numbers in
 | `reparse.py` | Rebuild a run's results from the server trace log — recovers crashed runs without GPU work |
 | `analyze.py` | Cross-run performance table + output similarity vs reference |
 | `template_divergence_probe.py` | Offline (tokenizer only): where `reasoning_effort`/`enable_thinking` land in the rendered prompt — proves cache-invalidation behavior without starting the server |
+| `secondary_suite.py` | Arms for a secondary model: engine path (vlm/llm), MTP on/off, short/long regimes, QA set, determinism triple — see [secondary-report.md](secondary-report.md) |
 
 ## Paths
 

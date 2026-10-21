@@ -99,6 +99,25 @@ Both models resident, 39.5 GB of weights, engine ceiling 52.9 GB, zero swap.
 The upgrade is not a regression for the pinned model: MTP verify sharing alone lifted long decode by
 about 50 %.
 
+### Campaign (single-variable arms)
+
+The smoke numbers above were replaced by a proper campaign — same harness shape
+as doc 07, arms `vlm`+MTP3 vs `llm`+MTP3 vs `vlm` without MTP, short (~4.6K) and
+long (~19K) regimes, 8-question factual guard, determinism triple. Decode is the
+median of turns 2–6.
+
+| Arm | Decode short | Decode long | QA |
+|---|---|---|---|
+| `vlm` + MTP3 (kept) | 114.1 tok/s | 81.3 tok/s | 8/8 |
+| `llm` + MTP3 | 75.7 tok/s | 48.1 tok/s | 8/8 |
+| `vlm`, MTP off | 93.1 tok/s | 92.6 tok/s | 8/8 |
+
+MTP pays only while the context is short; the text-only engine loses to `vlm` in
+both regimes, so the profile keeps `vlm` + MTP depth 3. Determinism did not
+reproduce (2 of 3 runs byte-identical). Full numbers and the coexistence
+memory-guard finding are in
+[`../examples/model-bench/secondary-report.md`](../examples/model-bench/secondary-report.md).
+
 ## 5. Validator changes
 
 The validator was widened, not loosened:
