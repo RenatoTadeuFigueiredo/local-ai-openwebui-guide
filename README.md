@@ -63,6 +63,7 @@ Read in order. 00 and 02 are the path; everything else is context or optional.
 | 05 | [Clean-room model install](docs/05-cleanroom-install.md) | Reproducible install, no local re-quantisation |
 | 06 | [Adding a second local model](docs/06-second-local-model.md) | A second isolated profile beside the first, without touching it |
 | 07 | [Benchmark: prefix cache, KV quantization, ANE prefill](docs/07-benchmark-prefill-kv-ane.md) | Production-readiness campaign for the 27B model — cache mechanics measured, knobs tested one at a time, verdict with numbers |
+| 08 | [Second model inside the same profile](docs/08-secondary-model-same-profile.md) | oMLX 0.7.2 upgrade plus a sibling alias, with measurements and upstream MTP API drift |
 
 **Start with 00.** It sets the local architecture and marks the VPS branch as optional.
 

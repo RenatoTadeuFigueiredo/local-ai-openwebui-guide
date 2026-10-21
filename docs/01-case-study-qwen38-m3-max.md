@@ -367,8 +367,8 @@ After ruling out `mlock`, DFlash and IQ4 as paths to a 4–5× jump, the physica
 
 An isolated experiment was chosen with:
 
-- oMLX `v0.6.3rc1` in a private Python 3.12 environment;
-- MLX `0.32.0`, MLX Metal `0.32.0` and commit-pinned mlx-lm;
+- oMLX `v0.7.2` in a private Python 3.12 environment (upgraded 2026-10-21, see [08](08-secondary-model-same-profile.md));
+- MLX `0.32.4`, MLX Metal `0.32.4` and commit-pinned mlx-lm;
 - checkpoint `pyros-vault/Qwen3.8-27B-Uncensored-oQ4e-mtp`;
 - Hugging Face revision `13ec62924c70a30973ea9f01094cb0a0fdc98e49`;
 - mixed oQ quantisation, mostly 4-bit with selected tensors at 5-bit;

@@ -42,7 +42,7 @@ keeps its own verifier, which is what makes the guarantee checkable rather than 
 
 Three questions decide it, in this order:
 
-1. **Does the runtime support the architecture?** oMLX `0.6.3rc1` covers the `qwen3_5` family,
+1. **Does the runtime support the architecture?** oMLX `0.7.2` covers the `qwen3_5` family,
    including the MTP drafter path. A model outside the supported families needs a different runtime,
    not a different profile.
 2. **Does the checkpoint carry the MTP head?** MTP is what makes a small model usable at 60+ tok/s

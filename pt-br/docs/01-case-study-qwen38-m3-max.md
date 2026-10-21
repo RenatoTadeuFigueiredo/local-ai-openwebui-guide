@@ -367,8 +367,8 @@ Após eliminar `mlock`, DFlash e IQ4 como caminhos para um salto de 4–5×, a a
 
 Foi escolhido um experimento isolado com:
 
-- oMLX `v0.6.3rc1` em ambiente Python 3.12 privado;
-- MLX `0.32.0`, MLX Metal `0.32.0` e mlx-lm commit-pinned;
+- oMLX `v0.7.2` em ambiente Python 3.12 privado (atualizado em 2026-10-21, ver [08](08-secondary-model-same-profile.md));
+- MLX `0.32.4`, MLX Metal `0.32.4` e mlx-lm commit-pinned;
 - checkpoint `pyros-vault/Qwen3.8-27B-Uncensored-oQ4e-mtp`;
 - revisão Hugging Face `13ec62924c70a30973ea9f01094cb0a0fdc98e49`;
 - quantização oQ mista, principalmente 4-bit com tensores selecionados em 5-bit;

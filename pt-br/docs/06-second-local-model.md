@@ -42,7 +42,7 @@ mantém seu próprio verificador, que é o que torna a garantia verificável em 
 
 Três perguntas decidem, nesta ordem:
 
-1. **O runtime suporta a arquitetura?** oMLX `0.6.3rc1` cobre a família `qwen3_5`,
+1. **O runtime suporta a arquitetura?** oMLX `0.7.2` cobre a família `qwen3_5`,
    incluindo o caminho do drafter MTP. Um modelo fora das famílias suportadas precisa de outro runtime,
    não de outro perfil.
 2. **O checkpoint carrega a cabeça MTP?** MTP é o que torna um modelo pequeno utilizável a 60+ tok/s
