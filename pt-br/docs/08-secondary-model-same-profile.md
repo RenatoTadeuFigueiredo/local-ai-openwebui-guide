@@ -145,22 +145,18 @@ O validador foi ampliado, não afrouxado:
 
 ## 6. Dashboard local
 
-[`examples/localagent-dashboard/`](../../examples/localagent-dashboard/) é uma stack Grafana
-exclusivamente local para este perfil: um exporter no host lê a fachada, o log de conclusão e o
-banco de uso; o Prometheus guarda 30 dias; e o Grafana provisiona a pasta `LocalAgent` com o
-dashboard `LocalAgent — oMLX (qwen38 + sage-a15)`, organizado em abas.
+O perfil ganha a própria stack LocalAgent nas portas 8791 / 9090 / 3300, com o dashboard na pasta
+`LocalAgent`. Criação, portas, regras de multi-instância, verificação e as armadilhas do schema v2
+estão na [doc 09](09-localagent-monitoring.md); este perfil só precisa dos dois comandos:
 
 ```bash
 ./monitoring/up.sh     # depois de `qwen-omlx start`
 ./monitoring/down.sh
 ```
 
-Nada sobe no login e todas as portas escutam em `127.0.0.1` (Grafana 3300, Prometheus 9090,
-exporter 8791). Os painéis seguem as famílias de métricas da campanha — tok/s de decode e prefill
-por modelo, TTFT, razão de aceitação de MTP, parks contra re-entradas, razão de cache hit, memória
-contra o teto, erros por tipo e motivos de fim — para que uma regressão apareça do mesmo jeito que
-aparece nos relatórios de benchmark. Erros de `handoff` precisam ficar em zero; é a emenda que
-quebrou na adaptação ao 0.7.2.
+O dashboard é genérico — descobre os modelos que a fachada serve — então `qwen38-omlx` e
+`sage-a15-omlx` aparecem nos mesmos painéis sem edição por modelo. Erros de `handoff` precisam
+ficar em zero; é a emenda que quebrou na adaptação ao 0.7.2.
 
 ## 7. Limites
 

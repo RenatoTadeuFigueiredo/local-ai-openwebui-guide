@@ -62,6 +62,7 @@ Leia na ordem. 00 e 02 são o caminho; o resto é contexto ou opcional.
 | 06 | [Adicionar um segundo modelo local](docs/06-second-local-model.md) | Segundo perfil isolado ao lado do primeiro, sem tocá-lo |
 | 07 | [Benchmark: cache de prefixo, KV quantizado, ANE prefill](docs/07-benchmark-prefill-kv-ane.md) | Campanha de prontidão para produção do modelo 27B — mecânica do cache medida, knobs testados um a um, veredito com números |
 | 08 | [Segundo modelo dentro do mesmo perfil](docs/08-secondary-model-same-profile.md) | Atualização para oMLX 0.7.2 e alias irmão, com medições e deriva da API de MTP |
+| 09 | [LocalAgent: Grafana local para qualquer perfil](docs/09-localagent-monitoring.md) | Instalação, portas e verificação do dashboard local em abas — uma stack por perfil, sem túnel |
 
 **Comece pelo 00.** Ele fixa a arquitetura local e marca o ramo com VPS como opcional.
 

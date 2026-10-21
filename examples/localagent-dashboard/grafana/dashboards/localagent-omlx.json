@@ -8,7 +8,7 @@
     }
   },
   "spec": {
-    "title": "LocalAgent \u2014 oMLX (qwen38 + sage-a15)",
+    "title": "LocalAgent \u2014 oMLX",
     "description": "Local monitoring for the oMLX profile. Tabs: overview, MTP seams, cache, traffic, errors, history.",
     "tags": [
       "localagent",
@@ -264,7 +264,7 @@
         "kind": "Panel",
         "spec": {
           "id": 5,
-          "title": "Decode agora \u2014 qwen38",
+          "title": "Decode agora",
           "links": [],
           "vizConfig": {
             "kind": "VizConfig",
@@ -295,67 +295,23 @@
                         "name": "prometheus-local"
                       },
                       "spec": {
-                        "expr": "sum(rate(omlx_generated_tokens_total{model=\"qwen38-omlx\"}[2m]))",
-                        "instant": true
+                        "expr": "sum by (model) (rate(omlx_generated_tokens_total{model=~\"$model\"}[2m]))",
+                        "instant": true,
+                        "legendFormat": "{{model}}"
                       }
                     }
                   }
                 }
               ]
             }
-          }
+          },
+          "description": "Live decode rate per resident model; the stat repeats for each model in scope."
         }
       },
       "p6": {
         "kind": "Panel",
         "spec": {
           "id": 6,
-          "title": "Decode agora \u2014 sage",
-          "links": [],
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "stat",
-            "version": "",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {},
-                "overrides": []
-              },
-              "options": {}
-            }
-          },
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "refId": "A",
-                    "hidden": false,
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus-local"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(omlx_generated_tokens_total{model=\"sage-a15-omlx\"}[2m]))",
-                        "instant": true
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "p7": {
-        "kind": "Panel",
-        "spec": {
-          "id": 7,
           "title": "Erros (janela)",
           "links": [],
           "vizConfig": {
@@ -399,10 +355,10 @@
           "description": "Handoff, engine, memory-guard and stream errors inside the visible window."
         }
       },
-      "p8": {
+      "p7": {
         "kind": "Panel",
         "spec": {
-          "id": 8,
+          "id": 7,
           "title": "Decode tok/s por modelo",
           "links": [],
           "vizConfig": {
@@ -446,10 +402,10 @@
           "description": "Completion tokens per second emitted per model."
         }
       },
-      "p9": {
+      "p8": {
         "kind": "Panel",
         "spec": {
-          "id": 9,
+          "id": 8,
           "title": "Prefill tok/s por modelo",
           "links": [],
           "vizConfig": {
@@ -493,10 +449,10 @@
           "description": "Prompt tokens per second accepted per model."
         }
       },
-      "p10": {
+      "p9": {
         "kind": "Panel",
         "spec": {
-          "id": 10,
+          "id": 9,
           "title": "TTFT m\u00e9dio por modelo",
           "links": [],
           "vizConfig": {
@@ -542,10 +498,10 @@
           "description": "Average time to first token for finished streaming requests."
         }
       },
-      "p11": {
+      "p10": {
         "kind": "Panel",
         "spec": {
-          "id": 11,
+          "id": 10,
           "title": "Aceita\u00e7\u00e3o de drafts",
           "links": [],
           "vizConfig": {
@@ -609,10 +565,10 @@
           }
         }
       },
-      "p12": {
+      "p11": {
         "kind": "Panel",
         "spec": {
-          "id": 12,
+          "id": 11,
           "title": "Drafts e aceitos por minuto",
           "links": [],
           "vizConfig": {
@@ -674,10 +630,10 @@
           }
         }
       },
-      "p13": {
+      "p12": {
         "kind": "Panel",
         "spec": {
-          "id": 13,
+          "id": 12,
           "title": "Parks e re-entradas",
           "links": [],
           "vizConfig": {
@@ -740,10 +696,10 @@
           "description": "Park handoffs and successful re-entry probes. A park without a later success means the standard path is carrying the request."
         }
       },
-      "p14": {
+      "p13": {
         "kind": "Panel",
         "spec": {
-          "id": 14,
+          "id": 13,
           "title": "Raz\u00e3o de cache hit",
           "links": [],
           "vizConfig": {
@@ -777,27 +733,8 @@
                         "name": "prometheus-local"
                       },
                       "spec": {
-                        "expr": "omlx_cache_hit_ratio{model=\"qwen38-omlx\"}",
-                        "legendFormat": "qwen38-omlx"
-                      }
-                    }
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "refId": "B",
-                    "hidden": false,
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus-local"
-                      },
-                      "spec": {
-                        "expr": "omlx_cache_hit_ratio{model=\"sage-a15-omlx\"}",
-                        "legendFormat": "sage-a15-omlx"
+                        "expr": "omlx_cache_hit_ratio{model=~\"$model\"}",
+                        "legendFormat": "{{model}}"
                       }
                     }
                   }
@@ -807,10 +744,10 @@
           }
         }
       },
-      "p15": {
+      "p14": {
         "kind": "Panel",
         "spec": {
-          "id": 15,
+          "id": 14,
           "title": "Restores de prefix cache",
           "links": [],
           "vizConfig": {
@@ -853,10 +790,10 @@
           }
         }
       },
-      "p16": {
+      "p15": {
         "kind": "Panel",
         "spec": {
-          "id": 16,
+          "id": 15,
           "title": "Tokens de cache por minuto",
           "links": [],
           "vizConfig": {
@@ -888,27 +825,8 @@
                         "name": "prometheus-local"
                       },
                       "spec": {
-                        "expr": "rate(omlx_cached_tokens_total{model=\"qwen38-omlx\"}[$__rate_interval]) * 60",
-                        "legendFormat": "qwen38-omlx"
-                      }
-                    }
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "refId": "B",
-                    "hidden": false,
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus-local"
-                      },
-                      "spec": {
-                        "expr": "rate(omlx_cached_tokens_total{model=\"sage-a15-omlx\"}[$__rate_interval]) * 60",
-                        "legendFormat": "sage-a15-omlx"
+                        "expr": "sum by (model) (rate(omlx_cached_tokens_total{model=~\"$model\"}[$__rate_interval])) * 60",
+                        "legendFormat": "{{model}}"
                       }
                     }
                   }
@@ -918,10 +836,10 @@
           }
         }
       },
-      "p17": {
+      "p16": {
         "kind": "Panel",
         "spec": {
-          "id": 17,
+          "id": 16,
           "title": "Requisi\u00e7\u00f5es por minuto",
           "links": [],
           "vizConfig": {
@@ -964,10 +882,10 @@
           }
         }
       },
-      "p18": {
+      "p17": {
         "kind": "Panel",
         "spec": {
-          "id": 18,
+          "id": 17,
           "title": "Tokens de prompt por minuto",
           "links": [],
           "vizConfig": {
@@ -1010,10 +928,10 @@
           }
         }
       },
-      "p19": {
+      "p18": {
         "kind": "Panel",
         "spec": {
-          "id": 19,
+          "id": 18,
           "title": "Tokens gerados por minuto",
           "links": [],
           "vizConfig": {
@@ -1056,10 +974,10 @@
           }
         }
       },
-      "p20": {
+      "p19": {
         "kind": "Panel",
         "spec": {
-          "id": 20,
+          "id": 19,
           "title": "Erros por tipo",
           "links": [],
           "vizConfig": {
@@ -1103,10 +1021,10 @@
           "description": "handoff = MTP seam violation, engine = engine-loop error, memory_guard = prefill abort, stream = client stream error."
         }
       },
-      "p21": {
+      "p20": {
         "kind": "Panel",
         "spec": {
-          "id": 21,
+          "id": 20,
           "title": "Fim por motivo",
           "links": [],
           "vizConfig": {
@@ -1149,10 +1067,10 @@
           }
         }
       },
-      "p22": {
+      "p21": {
         "kind": "Panel",
         "spec": {
-          "id": 22,
+          "id": 21,
           "title": "RSS do processo",
           "links": [],
           "vizConfig": {
@@ -1197,10 +1115,10 @@
           }
         }
       },
-      "p23": {
+      "p22": {
         "kind": "Panel",
         "spec": {
-          "id": 23,
+          "id": 22,
           "title": "Mem\u00f3ria do engine vs teto",
           "links": [],
           "vizConfig": {
@@ -1264,10 +1182,10 @@
           }
         }
       },
-      "p24": {
+      "p23": {
         "kind": "Panel",
         "spec": {
-          "id": 24,
+          "id": 23,
           "title": "Requisi\u00e7\u00f5es por hora (48 h)",
           "links": [],
           "vizConfig": {
@@ -1311,10 +1229,10 @@
           "description": "Hour buckets recorded by the server in state/usage.sqlite3 before the exporter existed."
         }
       },
-      "p25": {
+      "p24": {
         "kind": "Panel",
         "spec": {
-          "id": 25,
+          "id": 24,
           "title": "Tokens gerados por hora (48 h)",
           "links": [],
           "vizConfig": {
@@ -1427,24 +1345,11 @@
                       "spec": {
                         "x": 14,
                         "y": 0,
-                        "width": 3,
+                        "width": 6,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
                           "name": "p5"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 17,
-                        "y": 0,
-                        "width": 3,
-                        "height": 4,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "p6"
                         }
                       }
                     },
@@ -1457,7 +1362,7 @@
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p7"
+                          "name": "p6"
                         }
                       }
                     },
@@ -1470,7 +1375,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p8"
+                          "name": "p7"
                         }
                       }
                     },
@@ -1483,7 +1388,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p9"
+                          "name": "p8"
                         }
                       }
                     },
@@ -1496,7 +1401,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p10"
+                          "name": "p9"
                         }
                       }
                     }
@@ -1522,7 +1427,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p11"
+                          "name": "p10"
                         }
                       }
                     },
@@ -1535,7 +1440,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p12"
+                          "name": "p11"
                         }
                       }
                     },
@@ -1548,7 +1453,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p13"
+                          "name": "p12"
                         }
                       }
                     }
@@ -1574,7 +1479,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p14"
+                          "name": "p13"
                         }
                       }
                     },
@@ -1587,7 +1492,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p15"
+                          "name": "p14"
                         }
                       }
                     },
@@ -1600,7 +1505,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p16"
+                          "name": "p15"
                         }
                       }
                     }
@@ -1626,7 +1531,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p17"
+                          "name": "p16"
                         }
                       }
                     },
@@ -1639,7 +1544,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p18"
+                          "name": "p17"
                         }
                       }
                     },
@@ -1652,7 +1557,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p19"
+                          "name": "p18"
                         }
                       }
                     }
@@ -1678,7 +1583,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p20"
+                          "name": "p19"
                         }
                       }
                     },
@@ -1691,7 +1596,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p21"
+                          "name": "p20"
                         }
                       }
                     },
@@ -1704,7 +1609,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p22"
+                          "name": "p21"
                         }
                       }
                     },
@@ -1717,7 +1622,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p23"
+                          "name": "p22"
                         }
                       }
                     }
@@ -1743,7 +1648,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p24"
+                          "name": "p23"
                         }
                       }
                     },
@@ -1756,7 +1661,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "p25"
+                          "name": "p24"
                         }
                       }
                     }

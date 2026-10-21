@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Stop the monitoring stack. Grafana and Prometheus keep their volumes, so the
-# history survives the next `up.sh`.
+# Stop this profile's monitoring stack. Volumes survive, so history is kept.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-STATE="$ROOT/../state"
-PIDFILE="$STATE/monitoring/exporter.pid"
+PROFILE="$(cd "$ROOT/.." && pwd)"
+# shellcheck disable=SC1091
+source "$ROOT/.env"
+
+PIDFILE="$PROFILE/state/monitoring/exporter-$EXPORTER_PORT.pid"
 
 if [[ -f "$PIDFILE" ]]; then
-  pid="$(cat "$PIDFILE")"
-  kill "$pid" 2>/dev/null || true
+  kill "$(cat "$PIDFILE")" 2>/dev/null || true
   rm -f "$PIDFILE"
 fi
 
 cd "$ROOT"
-docker compose stop
+docker compose --env-file .env stop

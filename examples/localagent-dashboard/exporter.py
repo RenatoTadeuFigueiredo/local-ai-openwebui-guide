@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
-"""Prometheus exporter for the local oMLX profile.
+"""Prometheus exporter for a local oMLX profile.
 
 Scrapes the running facade (health + cumulative stats) and the server log,
 and republishes them as text/plain metrics for the local Prometheus.
 
+Every path is overridable so the same file serves any profile:
+
+``PROFILE_ROOT``   profile directory (default: parent of this file)
+``FACADE_URL``     facade base URL (default: http://127.0.0.1:8084)
+``API_KEY_FILE``   file holding the bearer token (default: <profile>/state/api-key)
+``LOG_FILE``       server log (default: <profile>/state/launcher.log)
+``EXPORTER_PORT``  listen port (default: 8791)
+
 The exporter is read-only: it never signals the server, never rotates the log,
-and keeps its byte offset in ``state/monitoring/exporter-offset`` so a restart
-does not double count.
+and keeps its byte offset in ``<profile>/state/monitoring/exporter-offset`` so a
+restart does not double count.
 """
 from __future__ import annotations
 
@@ -19,11 +27,13 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(os.environ.get("PROFILE_ROOT") or Path(__file__).resolve().parent.parent)
 STATE = ROOT / "state"
-LOG = STATE / "launcher.log"
+LOG = Path(os.environ.get("LOG_FILE") or STATE / "launcher.log")
+API_KEY_FILE = Path(os.environ.get("API_KEY_FILE") or STATE / "api-key")
+FACADE_URL = os.environ.get("FACADE_URL", "http://127.0.0.1:8084").rstrip("/")
 OFFSET_FILE = STATE / "monitoring" / "exporter-offset"
-BIND = ("127.0.0.1", 8791)
+BIND = ("127.0.0.1", int(os.environ.get("EXPORTER_PORT", "8791")))
 
 FINISH_RE = re.compile(
     r"(?:Chat completion|Completion): model=(\S+), (\d+) tokens in ([\d.]+)s "
@@ -131,10 +141,9 @@ def read_stats() -> None:
 
 
 def read_health() -> dict[str, object]:
-    header = (STATE / "auth-header").read_text().strip()
-    bearer = header.split(":", 1)[1].strip()
+    bearer = API_KEY_FILE.read_text().strip()
     request = urllib.request.Request(
-        "http://127.0.0.1:8084/health",
+        f"{FACADE_URL}/health",
         headers={"Authorization": f"Bearer {bearer}"},
     )
     with urllib.request.urlopen(request, timeout=5) as response:
