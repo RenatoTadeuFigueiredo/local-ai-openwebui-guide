@@ -105,6 +105,7 @@ perfil que troca de checkpoint continuar funcionando.
 | Todo painel em "No data" | `allValue` é `$__all`, ou exporter parado | `allValue: ".*"`; confira `curl 127.0.0.1:<EXPORTER_PORT>/metrics` |
 | Grafana reiniciando em loop | token do renderer padrão | defina `RENDERER_TOKEN` (o instalador faz) e mantenha igual nos dois serviços |
 | `port already in use` | outra instância na mesma base | instale com outro `--base-port` |
+| Subir uma instância derruba a outra | nome do projeto compose vazio | `docker-compose.yml` precisa começar com `name: ${INSTANCE}` |
 | `omlx_healthy 0` | perfil não está rodando | suba o perfil; a stack continua raspando e preenche |
 | Painéis vazios com requests acontecendo | `FACADE_URL` errada no `.env` | aponte para a porta do perfil e rode `up.sh` de novo |
 

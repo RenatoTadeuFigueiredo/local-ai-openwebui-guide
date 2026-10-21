@@ -106,6 +106,7 @@ profile that swaps checkpoints keeps working.
 | Every panel "No data" | `allValue` is `$__all`, or the exporter is down | set `allValue: ".*"`; check `curl 127.0.0.1:<EXPORTER_PORT>/metrics` |
 | Grafana restarts in a loop | default renderer token | set `RENDERER_TOKEN` (the installer does) and keep it identical in both services |
 | `port already in use` | another instance on the same base | install with a different `--base-port` |
+| Starting one instance kills the other | compose project name left empty | `docker-compose.yml` must start with `name: ${INSTANCE}` |
 | `omlx_healthy 0` | profile not running | start the profile; the stack keeps scraping and fills in |
 | Panels empty while requests happen | wrong `FACADE_URL` in `.env` | point it at the profile's port and `up.sh` again |
 
